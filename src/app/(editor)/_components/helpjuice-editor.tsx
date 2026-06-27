@@ -38,6 +38,7 @@ import type { EditorBlock as EditorBlockData } from "../_types/editor.types";
 import { getVisibleBlocks } from "../_utils/editor-block.utils";
 import { EditorBlock } from "./editor-block";
 import { editorFocusRingClass, editorIconSize } from "./editor-style-utils";
+import { ThemeToggle } from "./theme-toggle";
 
 const UNAVAILABLE_FEATURE_TOAST_TITLE = "Not available in this prototype";
 
@@ -179,6 +180,7 @@ export function HelpjuiceEditor() {
             </button>
           </nav>
           <div className="flex items-center gap-5">
+            <ThemeToggle />
             <button
               className={cn(
                 "inline-flex items-center gap-2 border-0 bg-transparent p-0 text-[16px] text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle)",
@@ -197,7 +199,7 @@ export function HelpjuiceEditor() {
             <span className="h-[26px] w-px bg-(--editor-divider)" />
             <button
               className={cn(
-                "inline-flex items-center gap-2 text-[18px] font-bold text-[#2f5f9f] transition-opacity hover:opacity-85",
+                "inline-flex items-center gap-2 text-[18px] font-bold text-(--editor-action-text) transition-opacity hover:opacity-85",
                 editorFocusRingClass,
               )}
               onClick={() => showUnavailableFeatureToast("Publish Space")}
@@ -226,7 +228,7 @@ export function HelpjuiceEditor() {
             type="button"
           >
             <div className="flex items-center gap-4">
-              <span className="inline-flex h-[32px] w-[28px] items-center justify-center rounded-[4px] bg-[#d8f6e5] text-[17px] font-semibold text-[#2c8a64]">
+              <span className="inline-flex h-[32px] w-[28px] items-center justify-center rounded-[4px] bg-(--editor-badge-bg) text-[17px] font-semibold text-(--editor-badge-text)">
                 P
               </span>
               <span className="h-[24px] w-px bg-(--editor-divider)" />
@@ -265,12 +267,15 @@ export function HelpjuiceEditor() {
               />
               <Cloud
                 aria-hidden="true"
-                className={cn(editorIconSize.metadata, "text-[#2f9b73]")}
+                className={cn(
+                  editorIconSize.metadata,
+                  "text-(--editor-status-success)",
+                )}
                 strokeWidth={2.2}
               />
               <MoreVertical
                 aria-hidden="true"
-                className={cn(editorIconSize.drag, "text-[#171b22]")}
+                className={cn(editorIconSize.drag, "text-(--editor-icon-strong)")}
                 strokeWidth={3}
               />
             </div>
