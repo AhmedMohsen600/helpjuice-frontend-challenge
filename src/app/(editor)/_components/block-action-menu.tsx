@@ -30,7 +30,11 @@ export function BlockActionMenu({
         align="start"
         anchor={anchorElement}
         aria-label="Block actions"
-        className="w-[236px] gap-0 rounded-[var(--editor-radius-lg)] border border-[color:var(--editor-border)] bg-[var(--editor-surface)] p-[6px] text-[var(--editor-text-heading)] shadow-[var(--editor-shadow-action-menu)] ring-0 outline-none"
+        className="max-h-[calc(100vh-32px)] w-[min(236px,calc(100vw-32px))] gap-0 overflow-y-auto rounded-[var(--editor-radius-lg)] border border-[color:var(--editor-border)] bg-[var(--editor-surface)] p-[6px] text-[var(--editor-text-heading)] shadow-[var(--editor-shadow-action-menu)] ring-0 outline-none"
+        collisionAvoidance={{
+          side: "flip",
+          align: "shift",
+        }}
         collisionPadding={18}
         data-block-action-menu
         initialFocus={false}
