@@ -1,9 +1,11 @@
 import { Check, Trash2 } from "lucide-react";
 
 import { Popover, PopoverContent } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 import { BLOCK_TRANSFORM_OPTIONS } from "../_constants/editor.constants";
 import type { EditorBlockType, TextBlockType } from "../_types/editor.types";
+import { editorFocusRingClass, editorIconSize } from "./editor-style-utils";
 
 type BlockActionMenuProps = {
   anchorElement: HTMLElement;
@@ -28,7 +30,7 @@ export function BlockActionMenu({
         align="start"
         anchor={anchorElement}
         aria-label="Block actions"
-        className="w-[236px] gap-0 rounded-[7px] border border-[#dfe4eb] bg-white p-[6px] text-[#1d2635] shadow-[0_18px_44px_rgba(15,23,42,0.18)] ring-0 outline-none"
+        className="w-[236px] gap-0 rounded-[var(--editor-radius-lg)] border border-[color:var(--editor-border)] bg-[var(--editor-surface)] p-[6px] text-[var(--editor-text-heading)] shadow-[var(--editor-shadow-action-menu)] ring-0 outline-none"
         collisionPadding={18}
         data-block-action-menu
         initialFocus={false}
@@ -37,7 +39,7 @@ export function BlockActionMenu({
         side="right"
         sideOffset={12}
       >
-        <div className="px-[10px] pb-[6px] pt-[5px] text-[13px] font-semibold leading-none text-[#687384]">
+        <div className="px-[10px] pb-[6px] pt-[5px] text-[13px] font-semibold leading-none text-[var(--editor-text-subtle)]">
           Turn into
         </div>
         <div className="space-y-[2px]">
@@ -47,9 +49,12 @@ export function BlockActionMenu({
             return (
               <button
                 aria-label={option.label}
-                className={`flex h-[38px] w-full items-center gap-[10px] rounded-[5px] px-[8px] text-left text-[15px] font-semibold outline-none ${
-                  isSelected ? "bg-[#f1f3f6]" : "bg-white hover:bg-[#f7f8fa]"
-                }`}
+                className={cn(
+                  "flex h-[38px] w-full items-center gap-[10px] rounded-[var(--editor-radius-md)] bg-[var(--editor-surface)] px-[8px] text-left text-[15px] font-semibold transition-colors hover:bg-[var(--editor-surface-hover)]",
+                  editorFocusRingClass,
+                  isSelected &&
+                    "bg-[var(--editor-surface-selected)] hover:bg-[var(--editor-surface-selected)]",
+                )}
                 data-selected={isSelected ? "true" : undefined}
                 key={option.type}
                 onClick={() => onTurnInto(option.type)}
@@ -57,14 +62,14 @@ export function BlockActionMenu({
                 role="menuitem"
                 type="button"
               >
-                <span className="flex h-[22px] w-[32px] items-center justify-center text-[17px] font-medium text-[#687384]">
+                <span className="flex h-[22px] w-[32px] items-center justify-center text-[17px] font-medium text-[var(--editor-text-subtle)]">
                   {option.marker}
                 </span>
                 <span className="min-w-0 flex-1 truncate">{option.label}</span>
                 {isSelected ? (
                   <Check
                     aria-hidden="true"
-                    className="h-[16px] w-[16px] text-[#1d2635]"
+                    className="h-[16px] w-[16px] text-[var(--editor-text-heading)]"
                     strokeWidth={2.8}
                   />
                 ) : null}
@@ -72,24 +77,29 @@ export function BlockActionMenu({
             );
           })}
         </div>
-        <div className="my-[6px] h-px bg-[#edf1f5]" />
+        <div className="my-[6px] h-px bg-[var(--editor-divider)]" />
         <button
           aria-label="Delete"
-          className="flex h-[38px] w-full items-center gap-[10px] rounded-[5px] bg-white px-[8px] text-left text-[15px] font-semibold outline-none hover:bg-[#f7f8fa]"
+          className={cn(
+            "flex h-[38px] w-full items-center gap-[10px] rounded-[var(--editor-radius-md)] bg-[var(--editor-surface)] px-[8px] text-left text-[15px] font-semibold transition-colors hover:bg-[var(--editor-surface-hover)]",
+            editorFocusRingClass,
+          )}
           onClick={onDelete}
           onMouseDown={(event) => event.preventDefault()}
           role="menuitem"
           type="button"
         >
-          <span className="flex h-[22px] w-[32px] items-center justify-center text-[#687384]">
+          <span className="flex h-[22px] w-[32px] items-center justify-center text-[var(--editor-text-subtle)]">
             <Trash2
               aria-hidden="true"
-              className="h-[18px] w-[18px]"
+              className={editorIconSize.inline}
               strokeWidth={2.2}
             />
           </span>
           <span className="min-w-0 flex-1 truncate">Delete</span>
-          <span className="text-[13px] font-medium text-[#9aa3b1]">Del</span>
+          <span className="text-[13px] font-medium text-[var(--editor-text-muted)]">
+            Del
+          </span>
         </button>
       </PopoverContent>
     </Popover>
