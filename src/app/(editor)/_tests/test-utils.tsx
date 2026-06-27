@@ -50,7 +50,7 @@ export async function createHeading(user: TestUser) {
 }
 
 export async function createExpandableHeading(user: TestUser) {
-  await typeSlashCommand(user);
+  await typeSlashCommand(user, "/");
   await selectCommand(user, "Expandable Heading 1");
 
   return screen.getByRole("textbox", {
