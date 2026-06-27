@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
+  EXPANDABLE_HEADING_1_COMMAND_ID,
   HEADING_1_COMMAND_ID,
   HEADING_2_COMMAND_ID,
   HEADING_3_COMMAND_ID,
@@ -15,7 +16,7 @@ import {
 import type { EditorBlock, SlashCommandId } from "../_types/editor.types";
 
 export function isSupportedSlashCommand(text: string) {
-  return text === "/" || /^\/[1-4]$/.test(text);
+  return text === "/" || /^\/[1-5]$/.test(text);
 }
 
 function getSlashCommandQuery(text: string) {
@@ -26,6 +27,7 @@ function getDefaultCommandId(query: string): SlashCommandId {
   if (query === "2") return HEADING_2_COMMAND_ID;
   if (query === "3") return HEADING_3_COMMAND_ID;
   if (query === "4") return HEADING_4_COMMAND_ID;
+  if (query === "5") return EXPANDABLE_HEADING_1_COMMAND_ID;
   return HEADING_1_COMMAND_ID;
 }
 
@@ -62,6 +64,8 @@ export function useSlashMenu({
   }, [activeBlockId, onClose, resetSelection]);
 
   const moveSelection = useCallback((direction: "next" | "previous") => {
+    if (query) return;
+
     setSelectedCommandId((currentCommandId) => {
       const currentIndex = SLASH_COMMAND_IDS.indexOf(currentCommandId);
       const offset = direction === "next" ? 1 : -1;
@@ -71,7 +75,7 @@ export function useSlashMenu({
 
       return SLASH_COMMAND_IDS[nextIndex];
     });
-  }, []);
+  }, [query]);
 
   useEffect(() => {
     if (!isOpen) return;
