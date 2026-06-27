@@ -1,5 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const e2ePort = process.env.PLAYWRIGHT_PORT ?? "3100";
+const e2eBaseURL = `http://127.0.0.1:${e2ePort}`;
+const reuseExistingServer =
+  process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === "true";
+
 export default defineConfig({
   testDir: "./tests/e2e",
   timeout: 30_000,
@@ -7,13 +12,13 @@ export default defineConfig({
     timeout: 5_000,
   },
   use: {
-    baseURL: "http://127.0.0.1:3100",
+    baseURL: e2eBaseURL,
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1 --port 3100",
-    url: "http://127.0.0.1:3100",
-    reuseExistingServer: false,
+    command: `npm run dev -- --hostname 127.0.0.1 --port ${e2ePort}`,
+    url: e2eBaseURL,
+    reuseExistingServer,
     timeout: 120_000,
   },
   projects: [
