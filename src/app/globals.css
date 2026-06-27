@@ -131,6 +131,13 @@
     --editor-text-placeholder: #c4cad4;
     --editor-icon-muted: #a4adbb;
     --editor-icon-faint: #d7dde6;
+    --editor-icon-strong: #171b22;
+    --editor-action-text: #2f5f9f;
+    --editor-status-success: #2f9b73;
+    --editor-badge-bg: #d8f6e5;
+    --editor-badge-text: #2c8a64;
+    --editor-filter-bg: #2f67b1;
+    --editor-filter-text: #ffffff;
     --editor-border: #dfe4eb;
     --editor-divider: #e6eaf0;
     --editor-focus-ring: rgba(154, 163, 177, 0.4);
@@ -142,6 +149,34 @@
     --editor-shadow-action-menu: 0 18px 44px rgba(15, 23, 42, 0.18);
     --editor-content-width: 956px;
     --editor-command-menu-width: 404px;
+  }
+
+  .dark {
+    --editor-bg: #191919;
+    --editor-surface: #202020;
+    --editor-surface-hover: #2a2a2a;
+    --editor-surface-selected: #2f2f2f;
+    --editor-text-primary: #e6e6e6;
+    --editor-text-heading: #f1f1ef;
+    --editor-text-secondary: #c9c9c7;
+    --editor-text-muted: #9b9b98;
+    --editor-text-subtle: #b7b7b3;
+    --editor-text-placeholder: #6f6f6b;
+    --editor-icon-muted: #9b9b98;
+    --editor-icon-faint: #74746f;
+    --editor-icon-strong: #e6e6e6;
+    --editor-action-text: #8ab4f8;
+    --editor-status-success: #5fbf9d;
+    --editor-badge-bg: #1d3a2c;
+    --editor-badge-text: #84d4ac;
+    --editor-filter-bg: #3769ad;
+    --editor-filter-text: #f8fbff;
+    --editor-border: #343434;
+    --editor-divider: #2c2c2c;
+    --editor-focus-ring: rgba(238, 238, 238, 0.28);
+    --editor-shadow-toolbar: 0 1px 0 rgba(255, 255, 255, 0.03);
+    --editor-shadow-menu: 0 28px 70px rgba(0, 0, 0, 0.45);
+    --editor-shadow-action-menu: 0 18px 44px rgba(0, 0, 0, 0.48);
   }
 
   * {
