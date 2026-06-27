@@ -17,6 +17,10 @@ export function SlashMenu({
   onSelectCommand,
   selectedCommandId,
 }: SlashMenuProps) {
+  const visibleCommands = filter
+    ? SLASH_COMMANDS.filter((command) => command.filterKey === filter)
+    : SLASH_COMMANDS;
+
   return (
     <Popover open>
       <PopoverContent
@@ -57,7 +61,7 @@ export function SlashMenu({
           ) : null}
         </div>
 
-        {SLASH_COMMANDS.map((command) => {
+        {visibleCommands.map((command) => {
           const isSelected = selectedCommandId === command.id;
 
           return (
