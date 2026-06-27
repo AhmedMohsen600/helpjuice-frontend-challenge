@@ -23,7 +23,7 @@ export function SlashMenu({
         align="start"
         anchor={anchorElement}
         aria-label="Add blocks"
-        className="h-[471px] max-h-[calc(100vh-36px)] w-[calc(100vw-36px)] gap-0 overflow-y-auto rounded-(--editor-radius-md) border border-(--editor-border) bg-(--editor-surface) p-0 py-4 text-[17px] text-(--editor-text-primary) shadow-(--editor-shadow-menu) ring-0 outline-none sm:w-(--editor-command-menu-width)"
+        className="max-h-[calc(100vh-32px)] w-[min(var(--editor-command-menu-width),calc(100vw-32px))] gap-0 overflow-y-auto rounded-(--editor-radius-md) border border-(--editor-border) bg-(--editor-surface) p-0 py-4 text-[16px] text-(--editor-text-primary) shadow-(--editor-shadow-menu) ring-0 outline-none sm:text-[17px]"
         collisionAvoidance={{
           side: "shift",
           align: "shift",
