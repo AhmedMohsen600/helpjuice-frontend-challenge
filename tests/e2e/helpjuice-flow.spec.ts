@@ -298,6 +298,9 @@ test("completes the six-screen /1 to H1 flow", async ({ page }) => {
   await expect(page.getByText("Filtering keyword")).toBeVisible();
   await expect(page.getByTestId("filter-keyword-highlight")).toHaveText("1");
   await expect(
+    page.getByRole("menu", { name: "Add blocks" }).getByRole("menuitem"),
+  ).toHaveCount(1);
+  await expect(
     page.getByRole("menuitem", { exact: true, name: "Heading 1" }),
   ).toHaveAttribute("data-selected", "true");
   await page.screenshot({ path: "test-results/helpjuice-03-filtered.png" });
@@ -342,6 +345,25 @@ test("completes the six-screen /1 to H1 flow", async ({ page }) => {
   expect(headingWeight).not.toBe(paragraphWeight);
   expect(headingFontSize).not.toBe(paragraphFontSize);
   await page.screenshot({ path: "test-results/helpjuice-07-complete.png" });
+});
+
+test("turns slash-prefixed paragraph text into plain paragraph text", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
+  await paragraph.click();
+  await page.keyboard.type("/description");
+
+  await expect(paragraph).toHaveText("description");
+  await expect(page.getByRole("menu", { name: "Add blocks" })).toBeHidden();
+
+  await page.keyboard.press("Enter");
+  const paragraphs = page.getByRole("textbox", { name: "Paragraph block" });
+  await expect(paragraphs).toHaveCount(2);
+  await expect(paragraphs.nth(0)).toHaveText("description");
+  await expect(paragraphs.nth(1)).toBeFocused();
 });
 
 test("keeps the slash menu in view after several headings", async ({ page }) => {
@@ -737,7 +759,7 @@ test("completes the expandable heading flow", async ({ page }) => {
 
   const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
   await paragraph.click();
-  await page.keyboard.type("/1");
+  await page.keyboard.type("/");
 
   const menu = page.getByRole("menu", { name: "Add blocks" });
   await expect(menu).toBeVisible();
@@ -791,6 +813,31 @@ test("completes the expandable heading flow", async ({ page }) => {
   await expect(restoredExpandableBody).toBeFocused();
 });
 
+test("creates an expandable heading with the /5 shortcut", async ({ page }) => {
+  await page.goto("/");
+
+  const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
+  await paragraph.click();
+  await page.keyboard.type("/5");
+
+  const menu = page.getByRole("menu", { name: "Add blocks" });
+  await expect(menu.getByRole("menuitem")).toHaveCount(1);
+  await expect(
+    page.getByRole("menuitem", { name: "Expandable Heading 1" }),
+  ).toHaveAttribute("data-selected", "true");
+
+  await page.keyboard.press("Enter");
+
+  const expandableHeading = page.getByRole("textbox", {
+    name: "Expandable Heading 1 block",
+  });
+  await expect(expandableHeading).toBeFocused();
+  await expect(expandableHeading).toHaveText("");
+  await expect(
+    page.getByRole("button", { name: "Toggle expandable heading" }),
+  ).toHaveAttribute("aria-expanded", "true");
+});
+
 test("can continue writing after a collapsed expandable heading", async ({
   page,
 }) => {
@@ -798,7 +845,7 @@ test("can continue writing after a collapsed expandable heading", async ({
 
   const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
   await paragraph.click();
-  await page.keyboard.type("/1");
+  await page.keyboard.type("/");
 
   for (let index = 0; index < 4; index += 1) {
     await page.keyboard.press("ArrowDown");
