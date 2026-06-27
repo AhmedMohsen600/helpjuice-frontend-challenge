@@ -1,7 +1,51 @@
 import { expect, test } from "@playwright/test";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 const consoleErrorsByPage = new WeakMap<Page, string[]>();
+
+async function expectLocatorInsideViewport(
+  page: Page,
+  locator: Locator,
+) {
+  const box = await locator.boundingBox();
+  const viewport = page.viewportSize();
+
+  expect(box).not.toBeNull();
+  expect(viewport).not.toBeNull();
+
+  if (!box || !viewport) {
+    throw new Error("Missing viewport layout metrics");
+  }
+
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+}
+
+async function expectNoHorizontalScroll(page: Page) {
+  const metrics = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: Math.max(
+      document.documentElement.scrollWidth,
+      document.body.scrollWidth,
+    ),
+  }));
+
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth + 1);
+}
+
+function boxesOverlap(
+  first: { x: number; y: number; width: number; height: number },
+  second: { x: number; y: number; width: number; height: number },
+) {
+  return !(
+    first.x + first.width <= second.x ||
+    second.x + second.width <= first.x ||
+    first.y + first.height <= second.y ||
+    second.y + second.height <= first.y
+  );
+}
 
 test.beforeEach(async ({ page }) => {
   const consoleErrors: string[] = [];
@@ -20,6 +64,216 @@ test.beforeEach(async ({ page }) => {
 
 test.afterEach(async ({ page }) => {
   expect(consoleErrorsByPage.get(page) ?? []).toEqual([]);
+});
+
+test("keeps mobile block controls inside a narrow viewport", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 667 });
+  await page.goto("/");
+
+  const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
+  await paragraph.hover();
+
+  await expectLocatorInsideViewport(
+    page,
+    page.getByRole("button", { name: "Add block below" }),
+  );
+  await expectLocatorInsideViewport(
+    page,
+    page.getByRole("button", { name: "Drag Paragraph block" }),
+  );
+});
+
+test("loads responsive viewports without horizontal document scroll", async ({
+  page,
+}) => {
+  for (const viewport of [
+    { width: 1440, height: 930 },
+    { width: 1280, height: 800 },
+    { width: 1024, height: 768 },
+    { width: 768, height: 1024 },
+    { width: 430, height: 932 },
+    { width: 390, height: 844 },
+    { width: 320, height: 667 },
+    { width: 390, height: 667 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+
+    await expectNoHorizontalScroll(page);
+  }
+});
+
+test("keeps mobile slash and block action menus inside the viewport", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 667 });
+  await page.goto("/");
+
+  const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
+  await paragraph.click();
+  await page.keyboard.type("/");
+
+  const slashMenu = page.getByRole("menu", { name: "Add blocks" });
+  await expect(slashMenu).toBeVisible();
+  await expectLocatorInsideViewport(page, slashMenu);
+
+  await page.keyboard.type("1");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("Mobile action menu heading");
+
+  const dragHandle = page.getByRole("button", { name: "Drag Heading 1 block" });
+  await dragHandle.click();
+
+  const blockActions = page.getByRole("menu", { name: "Block actions" });
+  await expect(blockActions).toBeVisible();
+  await expectLocatorInsideViewport(page, blockActions);
+});
+
+test("keeps the mobile slash menu visible near the bottom", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 667 });
+  await page.goto("/");
+
+  await page.getByRole("textbox", { name: "Paragraph block" }).click();
+
+  for (let index = 1; index <= 5; index += 1) {
+    await page.keyboard.type("/1");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type(`Short viewport heading ${index}`);
+    await page.keyboard.press("Enter");
+  }
+
+  const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
+  await expect(paragraph).toBeFocused();
+  await page.keyboard.type("/");
+
+  const menu = page.getByRole("menu", { name: "Add blocks" });
+  await expect(menu).toBeVisible();
+  await expectLocatorInsideViewport(page, menu);
+  await expectNoHorizontalScroll(page);
+});
+
+test("lets mobile content grow and keeps the last block clear of help", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 667 });
+  await page.goto("/");
+
+  const paragraphBlocks = page.getByRole("textbox", { name: "Paragraph block" });
+  await paragraphBlocks.first().click();
+
+  for (let index = 1; index <= 8; index += 1) {
+    await page.keyboard.type("/1");
+    await page.keyboard.press("Enter");
+    await page.keyboard.type(`Responsive heading ${index}`);
+    await page.keyboard.press("Enter");
+    await page.keyboard.type(
+      `Responsive paragraph ${index} has enough text to make the document grow naturally.`,
+    );
+    await page.keyboard.press("Enter");
+  }
+
+  const scrollMetrics = await page.evaluate(() => ({
+    scrollHeight: document.documentElement.scrollHeight,
+    viewportHeight: window.innerHeight,
+  }));
+  expect(scrollMetrics.scrollHeight).toBeGreaterThan(
+    scrollMetrics.viewportHeight * 1.5,
+  );
+
+  await page.evaluate(() =>
+    window.scrollTo(0, document.documentElement.scrollHeight),
+  );
+
+  const lastBlockBox = await page.locator("[data-editor-block]").last().boundingBox();
+  const helpBox = await page.getByRole("button", { name: "Help" }).boundingBox();
+
+  expect(lastBlockBox).not.toBeNull();
+  expect(helpBox).not.toBeNull();
+
+  if (!lastBlockBox || !helpBox) {
+    throw new Error("Missing last block or help button layout metrics");
+  }
+
+  expect(boxesOverlap(lastBlockBox, helpBox)).toBe(false);
+  await expectNoHorizontalScroll(page);
+});
+
+test("wraps long mobile heading and paragraph text", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 667 });
+  await page.goto("/");
+
+  const paragraph = page.getByRole("textbox", { name: "Paragraph block" });
+  await paragraph.click();
+  await page.keyboard.type("/1");
+  await page.keyboard.press("Enter");
+
+  const heading = page.getByRole("textbox", { name: "Heading 1 block" });
+  await page.keyboard.type(
+    "This is an intentionally long mobile heading with UnbrokenResponsiveHeadingTextThatMustWrapCleanly",
+  );
+  await page.keyboard.press("Enter");
+
+  const bodyParagraph = page.getByRole("textbox", { name: "Paragraph block" });
+  await page.keyboard.type(
+    "This paragraph is intentionally long on a narrow screen and includes UnbrokenResponsiveParagraphTextThatMustWrapCleanlyWithoutCreatingHorizontalScroll.",
+  );
+
+  const headingBox = await heading.boundingBox();
+  const paragraphBox = await bodyParagraph.boundingBox();
+
+  expect(headingBox).not.toBeNull();
+  expect(paragraphBox).not.toBeNull();
+
+  if (!headingBox || !paragraphBox) {
+    throw new Error("Missing long text layout metrics");
+  }
+
+  expect(headingBox.height).toBeGreaterThan(80);
+  expect(paragraphBox.height).toBeGreaterThan(56);
+  await expectNoHorizontalScroll(page);
+});
+
+test("supports dark mode and repeated heading creation on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 667 });
+  await page.goto("/");
+
+  const shell = page.getByTestId("editor-shell");
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+
+  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+  await expect(shell).toHaveCSS("background-color", "rgb(25, 25, 25)");
+  await expectNoHorizontalScroll(page);
+
+  const paragraphBlocks = page.getByRole("textbox", { name: "Paragraph block" });
+  const headingBlocks = page.getByRole("textbox", { name: "Heading 1 block" });
+  await paragraphBlocks.first().click();
+
+  for (const [index, headingText] of [
+    "First mobile heading",
+    "Second mobile heading",
+    "Third mobile heading",
+  ].entries()) {
+    await page.keyboard.type("/1");
+    await page.keyboard.press("Enter");
+    await expect(headingBlocks.nth(index)).toBeFocused();
+    await page.keyboard.type(headingText);
+
+    if (index < 2) {
+      await page.keyboard.press("Enter");
+      await page.keyboard.type(`Mobile paragraph ${index + 1}`);
+      await page.keyboard.press("Enter");
+    }
+  }
+
+  await expect(headingBlocks).toHaveCount(3);
+  await expect(headingBlocks.nth(0)).toHaveText("First mobile heading");
+  await expect(headingBlocks.nth(1)).toHaveText("Second mobile heading");
+  await expect(headingBlocks.nth(2)).toHaveText("Third mobile heading");
+  await expectNoHorizontalScroll(page);
 });
 
 test("completes the six-screen /1 to H1 flow", async ({ page }) => {
