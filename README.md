@@ -1,123 +1,166 @@
-# Helpjuice H1 Editor Challenge
+# Helpjuice Editor Challenge
 
-A focused Helpjuice frontend challenge prototype built with Next.js. The app recreates the six-screen Figma flow for turning an empty paragraph into an H1 through a Notion-style `/1` command.
+A focused Next.js editor prototype that recreates the Helpjuice/Notion-style `/1` to heading flow from the supplied reference screens.
 
-## Product Behavior
+The project is intentionally scoped: it prioritizes faithful interaction behavior, maintainable route-local architecture, a small real design system, and strong regression coverage over building a full document editor.
 
-- The editor starts with visual Helpjuice-like page chrome, a metadata toolbar, a title, description, and an empty paragraph placeholder.
-- Typing `/` opens the Add blocks menu.
-- Typing `1` keeps the menu open, shows `/1` in the block, and displays `Filtering keyword 1`.
-- `Heading 1` is selected by default.
-- Clicking `Heading 1` or pressing Enter converts the current paragraph into an H1, removes `/1`, and keeps focus in the heading.
-- Pressing Enter after typing the heading creates and focuses a normal paragraph below.
-- Pressing Enter in a normal paragraph creates and focuses a new paragraph below, so the `/1` flow can repeat indefinitely.
-- Clicking blank editor space below the content creates or focuses the trailing paragraph, matching Notion's click-to-continue writing UX.
-- Unsupported slash queries stay as paragraph text and do not convert on Enter.
-- ArrowUp and ArrowDown move the selected slash-menu command.
-- `Expandable Heading 1` converts into an expandable H1 block; collapsing it hides the paragraph body below it until the next heading.
-- Existing block drag handles reorder visible blocks with drag-and-drop.
+## What This Implements
+
+- Helpjuice-like page chrome with breadcrumb navigation, metadata toolbar, title, description, editor canvas, and help control.
+- Native `contentEditable` paragraph editing with an initial active placeholder.
+- Slash menu opened by `/`, filtered by supported numeric commands.
+- `Heading 1` creation by typing `/1` and pressing Enter or selecting the menu item.
+- Heading text entry followed by Enter to create or focus the next paragraph.
+- Repeated heading and paragraph creation without duplicate empty blocks.
+- Notion-style blank-space continuation that creates or focuses a trailing paragraph.
+- Expandable Heading 1 conversion, disclosure toggling, body hide/show behavior, and continuation after collapse.
+- Block action menu for turning blocks into text/heading types and deleting blocks.
+- Flat drag-and-drop block reordering with `@dnd-kit/core`.
+- Prototype toasts for visual-only page chrome controls.
 
 ## Tech Stack
 
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Tailwind CSS v4
-- shadcn-style base setup
-- `@dnd-kit/core` for block drag-and-drop
-- Vitest and React Testing Library
-- Playwright
+| Area | Choice |
+| --- | --- |
+| Framework | Next.js 16 App Router |
+| UI | React 19, Tailwind CSS v4, shadcn/Base UI primitives |
+| Language | TypeScript |
+| Icons | `lucide-react` |
+| Drag and drop | `@dnd-kit/core` |
+| Unit/component tests | Vitest, React Testing Library |
+| Browser tests | Playwright |
 
-## Setup
+## Getting Started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Scripts
+## Quality Commands
 
 ```bash
-npm run dev
 npm run lint
 npm run typecheck
 npm run test
-npm run test:watch
 npm run test:e2e
 npm run build
 ```
 
+Additional development commands:
+
+```bash
+npm run test:watch
+npm run start
+```
+
+## Project Structure
+
+```text
+src/app/(editor)/
+  page.tsx
+  _components/
+  _constants/
+  _hooks/
+  _tests/
+  _types/
+  _utils/
+```
+
+The public route remains `/`. The `(editor)` route group keeps editor implementation details colocated without leaking route-private folders into the URL.
+
+Key files:
+
+- `src/app/(editor)/page.tsx`: thin route entry point.
+- `src/app/(editor)/_components/helpjuice-editor.tsx`: page chrome and editor composition.
+- `src/app/(editor)/_components/editor-block.tsx`: editable block rendering and side controls.
+- `src/app/(editor)/_components/slash-menu.tsx`: slash command popover.
+- `src/app/(editor)/_hooks/use-helpjuice-editor.ts`: controller hook that composes editor state, focus, and slash-menu behavior.
+- `src/app/(editor)/_hooks/use-editor-blocks.ts`: local block state and intent actions.
+- `src/app/(editor)/_hooks/use-editor-focus.ts`: DOM refs, contentEditable synchronization, and focus restoration.
+- `src/app/(editor)/_utils/editor-block.utils.ts`: pure block transformation utilities.
+
 ## Architecture
 
-The App Router route stays thin:
+The editor uses local React state and a small flat block model. There is no backend, persistence, rich-text mark system, or nested document tree because those are outside the challenge scope.
 
-- `src/app/(editor)/page.tsx` renders the editor at `/` without changing the public URL.
-- `src/app/(editor)/_components`, `_hooks`, `_types`, `_constants`, and `_utils` own the route-private editor UI, state, minimal block type, and interaction behavior.
-- `src/app/globals.css` contains the contenteditable placeholder reset.
-
-The editor intentionally uses a minimal model:
+The supported block types are intentionally narrow:
 
 ```ts
 type EditorBlock =
-  | { id: string; type: "paragraph"; text: string }
-  | { id: string; type: "heading-1"; text: string }
+  | { id: string; type: "paragraph"; text: string; parentId?: string }
+  | {
+      id: string;
+      type: "heading-1" | "heading-2" | "heading-3" | "heading-4";
+      text: string;
+      parentId?: string;
+    }
   | {
       id: string;
       type: "expandable-heading-1";
       text: string;
       isExpanded: boolean;
+      parentId?: string;
     };
 ```
 
-There is no full document system, backend, or persistence because the Google Doc only requires the H1 conversion prototype and the initial reviewer experience should match Figma every time.
+Design choices:
 
-Additional notes:
+- Keep behavior route-local and easy to reason about.
+- Let the browser handle normal typing, paste, selection, deletion, caret movement, and IME composition.
+- Intercept only the editor behaviors that matter: slash commands, Enter, Escape, focus restoration, disclosure toggling, and block actions.
+- Keep pure block updates in utilities so edge cases are testable without rendering React.
+- Reuse immediate/trailing paragraphs when required to avoid duplicate empty placeholders.
 
-- [System design](docs/system-design.md)
-- [Design system notes](docs/design-system.md)
-- [Final review checklist](docs/final-review.md)
+## Design System
 
-## Testing
+This repo includes a small implemented design system, not a large UI library.
 
-Component tests cover:
+- Editor tokens live in `src/app/globals.css`.
+- Route-level style helpers live in `src/app/(editor)/_components/editor-style-utils.ts`.
+- Slash command rows share `src/app/(editor)/_components/command-menu-item.tsx`.
+- Repeated editor surfaces, menu states, icon sizing, focus rings, radii, shadows, and widths use semantic tokens.
 
-- Initial editor state.
-- `/` opening the menu.
-- `1` filtering and highlighted keyword.
-- Mouse and Enter selection of Heading 1.
-- Removal of `/1` after conversion.
-- Focus staying in the H1.
-- Heading typing.
-- Enter creating and focusing the paragraph below.
-- Paragraph Enter creating and focusing the next paragraph.
-- Blank editor space creating or focusing the trailing paragraph without duplicate placeholders.
-- Escape and outside click closing the menu.
-- Native contenteditable input paths for paste and text replacement.
-- Unsupported slash queries that should not convert.
-- Expandable Heading 1 conversion, disclosure toggling, and paragraph body hide/show behavior.
-- Mid-text native edits and long content.
-- Re-entering from an H1 without duplicating empty paragraph placeholders.
-- Pure block reorder behavior for drag-and-drop.
+See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) for the exact tokens and trade-offs.
 
-The Playwright tests cover the complete six-screen H1 flow in Chromium at the Figma reference viewport, repeated H1/paragraph creation, Notion-style click-to-continue editing, a multi-heading menu-position regression, duplicate-empty-paragraph regressions, the expandable heading flow, and drag-handle block reordering.
+## Testing Strategy
+
+Tests are split by behavior:
+
+- `editor-heading-flow.test.tsx`: H1 creation, focus, paragraph continuation, repeated usage, block action behavior, and native input paths.
+- `editor-expandable-heading-flow.test.tsx`: expandable H1 conversion, focus, disclosure toggling, paragraph body behavior, and repeated usage.
+- `slash-menu.test.tsx`: menu opening, filtering, selection, keyboard navigation, mouse selection, and close behavior.
+- `editor-block.utils.test.ts`: pure block transformations, paragraph insertion/reuse, slash text clearing, conversion, deletion, reordering, and missing-ID safety.
+
+Playwright covers the full reviewer-facing flow in Chromium at the reference desktop viewport, including screenshots for the key states.
 
 ## Accessibility
 
-- Editable blocks use textbox roles and clear accessible labels.
-- The slash menu uses menu/menuitem roles.
-- Focus is managed after conversion and after creating the following paragraph.
-- Visual-only decorative controls are kept non-disruptive.
+- Editable blocks expose `role="textbox"` and descriptive labels.
+- Slash and block menus use `role="menu"` and `role="menuitem"`.
+- Focus is restored after conversion, block creation, disclosure toggling, and deletion.
+- Keyboard navigation is supported for the slash menu.
+- Decorative icons are hidden from assistive technology.
+- Visual-only controls remain labeled and explain themselves through prototype toasts.
+- A shared `focus-visible` ring is used for interactive editor chrome.
 
 ## Assumptions And Trade-Offs
 
-- Figma raster screenshots are the visual source of truth.
-- `Expandable Heading 1` is intentionally minimal: conversion, focus, paragraph insertion, disclosure toggling, and hiding/showing following paragraph blocks in the flat editor model.
-- Drag-and-drop is intentionally flat block reordering only; it does not add a nested document tree.
-- Slash-menu keyboard navigation is limited to ArrowUp, ArrowDown, Enter, and Escape.
-- Persistence is intentionally omitted to preserve the expected initial reviewer state.
+- The supplied Figma screenshots are treated as the visual source of truth.
+- The app is desktop-first because the acceptance references are desktop captures.
+- Expandable headings use a flat model: body paragraphs are hidden while collapsed, but this is not a full nested document system.
+- Drag-and-drop reorders flat visible blocks only.
+- Persistence is omitted so reviewers always land on the expected clean initial state.
+- The implementation favors direct, testable code over framework-heavy editor abstractions.
+
+## Documentation
+
+- [System design](docs/system-design.md)
+- [Design system](DESIGN_SYSTEM.md)
+- [Final review checklist](docs/final-review.md)
 
 ## Deployment
 
-This Next.js app is ready for deployment on Vercel or another Node-compatible host. A deployment URL should be added to submission notes after publishing.
+The app can be deployed to Vercel or any Node-compatible host that supports Next.js. Run `npm run build` before publishing.
