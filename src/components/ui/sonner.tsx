@@ -38,8 +38,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }
       toastOptions={{
         classNames: {
-          description: "!text-[#4b5565]",
-          title: "!text-[#111722]",
+          description: "!text-[var(--editor-text-secondary)]",
+          title: "!text-[var(--editor-text-primary)]",
           toast: "cn-toast",
         },
       }}
