@@ -128,3 +128,21 @@
     @apply font-sans;
   }
 }
+
+[data-active="true"] .editor-block:empty::before {
+  color: #c4cad4;
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.editor-block:focus {
+  caret-color: #4b5565 !important;
+}
+
+[aria-label="Heading 1 block"].editor-block:focus,
+[aria-label="Heading 2 block"].editor-block:focus,
+[aria-label="Heading 3 block"].editor-block:focus,
+[aria-label="Heading 4 block"].editor-block:focus,
+[aria-label="Expandable Heading 1 block"].editor-block:focus {
+  caret-color: #1d2635 !important;
+}

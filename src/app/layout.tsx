@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { Toaster } from "@/components/ui/sonner";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Helpjuice Frontend Challenge",
-  description: "Frontend challenge setup built with Next.js.",
+  title: "Helpjuice H1 Editor",
+  description: "A focused Helpjuice frontend challenge prototype.",
 };
 
 export default function RootLayout({
@@ -27,7 +30,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col antialiased">{children}</body>
+      <body className="flex min-h-full flex-col antialiased">
+        {children}
+        <Toaster closeButton position="bottom-center" />
+      </body>
     </html>
   );
 }
