@@ -13,7 +13,7 @@ describe("editor expandable heading flow", () => {
   it("selects Expandable Heading 1 and creates a focused expandable heading block", async () => {
     const { user } = renderEditor();
 
-    await typeSlashCommand(user);
+    await typeSlashCommand(user, "/");
     await selectCommand(user, "Expandable Heading 1");
 
     const heading = screen.getByRole("textbox", {
@@ -90,7 +90,7 @@ describe("editor expandable heading flow", () => {
   it("hides and restores expandable heading paragraph body content", async () => {
     const { user } = renderEditor();
 
-    await typeSlashCommand(user);
+    await typeSlashCommand(user, "/");
     await user.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}");
     await user.keyboard("{Enter}");
 
@@ -127,7 +127,7 @@ describe("editor expandable heading flow", () => {
   it("uses arrow navigation to select Expandable Heading 1 and Enter converts it", async () => {
     const { user } = renderEditor();
 
-    await typeSlashCommand(user);
+    await typeSlashCommand(user, "/");
 
     const menu = screen.getByRole("menu", { name: "Add blocks" });
     await user.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}");
@@ -161,7 +161,7 @@ describe("editor expandable heading flow", () => {
     const continuation = screen.getByRole("textbox", {
       name: "Paragraph block",
     });
-    await typeSlashCommand(user, "/1", continuation);
+    await typeSlashCommand(user, "/", continuation);
     await selectCommand(user, "Expandable Heading 1");
 
     const secondHeading = getEditableBlocks("Expandable Heading 1 block")[1];
