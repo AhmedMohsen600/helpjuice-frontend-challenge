@@ -14,6 +14,14 @@ import { useEditorBlocks } from "./use-editor-blocks";
 import { useEditorFocus } from "./use-editor-focus";
 import { isSupportedSlashCommand, useSlashMenu } from "./use-slash-menu";
 
+function getParagraphTextFromUnsupportedSlashText(text: string) {
+  if (text.length <= 1 || !text.startsWith("/") || isSupportedSlashCommand(text)) {
+    return text;
+  }
+
+  return text.slice(1);
+}
+
 export function useHelpjuiceEditor() {
   const {
     activeBlock,
@@ -146,10 +154,27 @@ export function useHelpjuiceEditor() {
       const nextText = event.currentTarget.textContent ?? "";
       if (isSupportedSlashCommand(nextText)) {
         resetSlashMenuSelection(nextText);
+        updateBlockText(block.id, nextText);
+        return;
       }
-      updateBlockText(block.id, nextText);
+
+      const paragraphText = getParagraphTextFromUnsupportedSlashText(nextText);
+      if (paragraphText !== nextText) {
+        updateBlockText(block.id, paragraphText);
+        requestBlockSync(block.id);
+        requestFocus(block.id);
+        return;
+      }
+
+      updateBlockText(block.id, paragraphText);
     },
-    [normalizeEmptyBlockElement, resetSlashMenuSelection, updateBlockText],
+    [
+      normalizeEmptyBlockElement,
+      requestBlockSync,
+      requestFocus,
+      resetSlashMenuSelection,
+      updateBlockText,
+    ],
   );
 
   const handleBlockKeyDown = useCallback(
