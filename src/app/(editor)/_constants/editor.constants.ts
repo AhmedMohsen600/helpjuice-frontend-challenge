@@ -47,6 +47,7 @@ export const SLASH_COMMAND_IDS = [
 ] as const satisfies readonly SlashCommandId[];
 
 export const SLASH_COMMANDS: ReadonlyArray<{
+  filterKey?: string;
   id: SlashCommandId;
   label: string;
   shortcut: string;
@@ -57,29 +58,34 @@ export const SLASH_COMMANDS: ReadonlyArray<{
     shortcut: "Shortcut: type plain text",
   },
   {
+    filterKey: "1",
     id: HEADING_1_COMMAND_ID,
     label: "Heading 1",
-    shortcut: "Shortcut: type # + space",
+    shortcut: "Shortcut: type 1",
   },
   {
+    filterKey: "2",
     id: HEADING_2_COMMAND_ID,
     label: "Heading 2",
-    shortcut: "Shortcut: type ## + space",
+    shortcut: "Shortcut: type 2",
   },
   {
+    filterKey: "3",
     id: HEADING_3_COMMAND_ID,
     label: "Heading 3",
-    shortcut: "Shortcut: type ### + space",
+    shortcut: "Shortcut: type 3",
   },
   {
+    filterKey: "4",
     id: HEADING_4_COMMAND_ID,
     label: "Heading 4",
-    shortcut: "Shortcut: type #### + space",
+    shortcut: "Shortcut: type 4",
   },
   {
+    filterKey: "5",
     id: EXPANDABLE_HEADING_1_COMMAND_ID,
     label: "Expandable Heading 1",
-    shortcut: "Shortcut: type >># + space",
+    shortcut: "Shortcut: type 5",
   },
 ];
 
