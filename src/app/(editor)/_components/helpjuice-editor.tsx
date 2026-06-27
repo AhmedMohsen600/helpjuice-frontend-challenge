@@ -56,6 +56,7 @@ export function HelpjuiceEditor() {
     deleteBlock,
     handleBlockInput,
     handleBlockKeyDown,
+    handleBlockPaste,
     isSlashMenuOpen,
     openAddBlockMenu,
     registerBlockRef,
@@ -319,6 +320,7 @@ export function HelpjuiceEditor() {
                     onOpenAddBlockMenu={openAddBlockMenu}
                     onInput={handleBlockInput}
                     onKeyDown={handleBlockKeyDown}
+                    onPaste={handleBlockPaste}
                     onSelectCommand={selectCommand}
                     onToggleExpandable={toggleExpandableBlock}
                     onTurnInto={turnBlockIntoTextType}

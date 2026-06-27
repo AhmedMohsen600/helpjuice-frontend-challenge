@@ -27,8 +27,12 @@ describe("slash menu", () => {
     expect(within(menu).getByText("Heading 1")).toBeInTheDocument();
     expect(within(menu).getByText("Expandable Heading 1")).toBeInTheDocument();
     expect(within(menu).getByLabelText("Heading 1")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
+    );
+    expect(within(menu).getByLabelText("Heading 2")).toHaveAttribute(
+      "aria-checked",
+      "false",
     );
     expect(paragraph).toHaveTextContent("/");
   });
@@ -44,10 +48,10 @@ describe("slash menu", () => {
       "1",
     );
     expect(within(menu).getByLabelText("Heading 1")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
-    expect(within(menu).getAllByRole("menuitem")).toHaveLength(1);
+    expect(within(menu).getAllByRole("menuitemradio")).toHaveLength(1);
     expect(within(menu).queryByLabelText("Paragraph / Text")).not.toBeInTheDocument();
     expect(within(menu).queryByLabelText("Heading 2")).not.toBeInTheDocument();
     expect(
@@ -76,9 +80,9 @@ describe("slash menu", () => {
       expect(screen.getByTestId("filter-keyword-highlight")).toHaveTextContent(
         keyword,
       );
-      expect(within(menu).getAllByRole("menuitem")).toHaveLength(1);
+      expect(within(menu).getAllByRole("menuitemradio")).toHaveLength(1);
       expect(within(menu).getByLabelText(headingLabel)).toHaveAttribute(
-        "data-selected",
+        "aria-checked",
         "true",
       );
       expect(within(menu).getByText(shortcutLabel)).toBeInTheDocument();
@@ -94,10 +98,11 @@ describe("slash menu", () => {
     await user.keyboard("{ArrowDown}");
 
     expect(within(menu).getByLabelText("Heading 1")).not.toHaveAttribute(
-      "data-selected",
+      "aria-checked",
+      "true",
     );
     expect(within(menu).getByLabelText("Heading 2")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
   });
@@ -111,11 +116,12 @@ describe("slash menu", () => {
     await user.keyboard("{ArrowUp}");
 
     expect(within(menu).getByLabelText("Paragraph / Text")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
     expect(within(menu).getByLabelText("Heading 1")).not.toHaveAttribute(
-      "data-selected",
+      "aria-checked",
+      "true",
     );
   });
 
@@ -128,14 +134,14 @@ describe("slash menu", () => {
     await user.keyboard("{ArrowUp}");
 
     expect(within(menu).getByLabelText("Paragraph / Text")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
 
     await user.keyboard("{ArrowDown}");
 
     expect(within(menu).getByLabelText("Heading 1")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
   });
@@ -155,7 +161,7 @@ describe("slash menu", () => {
       "2",
     );
     expect(within(menu).getByLabelText("Heading 2")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
 
@@ -173,7 +179,7 @@ describe("slash menu", () => {
     const { menu } = await typeSlashCommand(user, "/5");
 
     expect(within(menu).getByLabelText("Expandable Heading 1")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
 

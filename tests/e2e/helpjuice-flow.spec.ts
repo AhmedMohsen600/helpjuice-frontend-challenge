@@ -298,11 +298,11 @@ test("completes the six-screen /1 to H1 flow", async ({ page }) => {
   await expect(page.getByText("Filtering keyword")).toBeVisible();
   await expect(page.getByTestId("filter-keyword-highlight")).toHaveText("1");
   await expect(
-    page.getByRole("menu", { name: "Add blocks" }).getByRole("menuitem"),
+    page.getByRole("menu", { name: "Add blocks" }).getByRole("menuitemradio"),
   ).toHaveCount(1);
   await expect(
-    page.getByRole("menuitem", { exact: true, name: "Heading 1" }),
-  ).toHaveAttribute("data-selected", "true");
+    page.getByRole("menuitemradio", { exact: true, name: "Heading 1" }),
+  ).toHaveAttribute("aria-checked", "true");
   await page.screenshot({ path: "test-results/helpjuice-03-filtered.png" });
 
   await page.keyboard.press("Enter");
@@ -460,7 +460,7 @@ test("toggles the editor into dark mode", async ({ page }) => {
   const menu = page.getByRole("menu", { name: "Add blocks" });
   await expect(menu).toHaveCSS("background-color", "rgb(32, 32, 32)");
   await expect(
-    page.getByRole("menuitem", { exact: true, name: "Heading 1" }),
+    page.getByRole("menuitemradio", { exact: true, name: "Heading 1" }),
   ).toHaveCSS("background-color", "rgb(47, 47, 47)");
 
   await page.getByRole("button", { name: "Switch to light mode" }).click();
@@ -486,8 +486,10 @@ test("supports the add affordance, heading levels, and block turn-into menu", as
 
   await page.keyboard.type("4");
   await expect(page.getByTestId("filter-keyword-highlight")).toHaveText("4");
-  await expect(page.getByRole("menuitem", { name: "Heading 4" })).toHaveAttribute(
-    "data-selected",
+  await expect(
+    page.getByRole("menuitemradio", { name: "Heading 4" }),
+  ).toHaveAttribute(
+    "aria-checked",
     "true",
   );
 
@@ -503,7 +505,7 @@ test("supports the add affordance, heading levels, and block turn-into menu", as
   await expect(blockActions).toBeVisible();
   await expect(blockActions.getByText("Turn into")).toBeVisible();
 
-  await blockActions.getByRole("menuitem", { name: "Heading 2" }).click();
+  await blockActions.getByRole("menuitemradio", { name: "Heading 2" }).click();
 
   const heading2 = page.getByRole("textbox", { name: "Heading 2 block" });
   await expect(heading2).toBeFocused();
@@ -512,7 +514,7 @@ test("supports the add affordance, heading levels, and block turn-into menu", as
   await page.getByRole("button", { name: "Drag Heading 2 block" }).click();
   await page
     .getByRole("menu", { name: "Block actions" })
-    .getByRole("menuitem", { name: "Paragraph / Text" })
+    .getByRole("menuitemradio", { name: "Paragraph / Text" })
     .click();
 
   const convertedParagraph = page.getByRole("textbox", {
@@ -767,8 +769,8 @@ test("completes the expandable heading flow", async ({ page }) => {
     await page.keyboard.press("ArrowDown");
   }
   await expect(
-    page.getByRole("menuitem", { name: "Expandable Heading 1" }),
-  ).toHaveAttribute("data-selected", "true");
+    page.getByRole("menuitemradio", { name: "Expandable Heading 1" }),
+  ).toHaveAttribute("aria-checked", "true");
 
   await page.keyboard.press("Enter");
 
@@ -821,10 +823,10 @@ test("creates an expandable heading with the /5 shortcut", async ({ page }) => {
   await page.keyboard.type("/5");
 
   const menu = page.getByRole("menu", { name: "Add blocks" });
-  await expect(menu.getByRole("menuitem")).toHaveCount(1);
+  await expect(menu.getByRole("menuitemradio")).toHaveCount(1);
   await expect(
-    page.getByRole("menuitem", { name: "Expandable Heading 1" }),
-  ).toHaveAttribute("data-selected", "true");
+    page.getByRole("menuitemradio", { name: "Expandable Heading 1" }),
+  ).toHaveAttribute("aria-checked", "true");
 
   await page.keyboard.press("Enter");
 

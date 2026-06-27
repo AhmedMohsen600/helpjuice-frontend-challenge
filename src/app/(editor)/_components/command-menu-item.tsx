@@ -29,10 +29,11 @@ export function CommandMenuItem({
         isSelected &&
           "bg-(--editor-surface-selected) hover:bg-(--editor-surface-selected)",
       )}
+      aria-checked={isSelected}
       data-selected={isSelected ? "true" : undefined}
       onClick={() => onSelect(commandId)}
       onMouseDown={(event) => event.preventDefault()}
-      role="menuitem"
+      role="menuitemradio"
       type="button"
     >
       <Type

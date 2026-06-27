@@ -1,21 +1,22 @@
 # Helpjuice Editor Challenge
 
-A focused Next.js editor prototype that recreates the Helpjuice/Notion-style `/1` to heading flow from the supplied reference screens.
+A focused Next.js editor prototype that recreates the Helpjuice/Notion-style slash-command heading flow from the supplied reference screens.
 
 The project is intentionally scoped: it prioritizes faithful interaction behavior, maintainable route-local architecture, a small real design system, and strong regression coverage over building a full document editor.
 
 ## What This Implements
 
 - Helpjuice-like page chrome with breadcrumb navigation, metadata toolbar, title, description, editor canvas, and help control.
-- Native `contentEditable` paragraph editing with an initial active placeholder.
-- Slash menu opened by `/`, filtered by supported numeric commands.
-- `Heading 1` creation by typing `/1` and pressing Enter or selecting the menu item.
+- Native `contentEditable` paragraph editing with an initial active placeholder and plaintext-only paste/input sanitization.
+- Slash menu opened by `/`, filtered by supported numeric commands `/1` through `/5`.
+- Heading creation by typing `/1` through `/4` and pressing Enter or selecting the menu item.
+- Expandable Heading 1 creation through `/5`.
 - Heading text entry followed by Enter to create or focus the next paragraph.
 - Repeated heading and paragraph creation without duplicate empty blocks.
 - Notion-style blank-space continuation that creates or focuses a trailing paragraph.
 - Expandable Heading 1 conversion, disclosure toggling, body hide/show behavior, and continuation after collapse.
 - Block action menu for turning blocks into text/heading types and deleting blocks.
-- Flat drag-and-drop block reordering with `@dnd-kit/core`.
+- Drag-and-drop top-level block reordering with `@dnd-kit/core`; expandable headings move together with their child blocks and child-origin/child-target drags are ignored.
 - Light/dark editor theme toggle with a Notion-like dark canvas.
 - Prototype toasts for visual-only page chrome controls.
 
@@ -110,8 +111,9 @@ type EditorBlock =
 Design choices:
 
 - Keep behavior route-local and easy to reason about.
-- Let the browser handle normal typing, paste, selection, deletion, caret movement, and IME composition.
-- Intercept only the editor behaviors that matter: slash commands, Enter, Escape, focus restoration, disclosure toggling, and block actions.
+- Let the browser handle normal typing, selection, deletion, caret movement, mobile keyboard input, and IME composition.
+- Sanitize paste and rich native input back to plain text so no inline HTML, links, scripts, or pasted styles remain in editable blocks.
+- Intercept only the editor behaviors that matter: slash commands, paste sanitization, Enter, Escape, focus restoration, disclosure toggling, drag invariants, and block actions.
 - Keep pure block updates in utilities so edge cases are testable without rendering React.
 - Reuse immediate/trailing paragraphs when required to avoid duplicate empty placeholders.
 
@@ -130,17 +132,17 @@ See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) for the exact tokens and trade-offs.
 
 Tests are split by behavior:
 
-- `editor-heading-flow.test.tsx`: H1 creation, focus, paragraph continuation, repeated usage, block action behavior, and native input paths.
-- `editor-expandable-heading-flow.test.tsx`: expandable H1 conversion, focus, disclosure toggling, paragraph body behavior, and repeated usage.
-- `slash-menu.test.tsx`: menu opening, filtering, selection, keyboard navigation, mouse selection, and close behavior.
-- `editor-block.utils.test.ts`: pure block transformations, paragraph insertion/reuse, slash text clearing, conversion, deletion, reordering, and missing-ID safety.
+- `editor-heading-flow.test.tsx`: heading creation, focus, paragraph continuation, repeated usage, plaintext paste/input sanitization, block action behavior, and native input paths.
+- `editor-expandable-heading-flow.test.tsx`: expandable H1 conversion, focus, disclosure toggling, paragraph body behavior, semantic menu state, and repeated usage.
+- `slash-menu.test.tsx`: menu opening, `/1` through `/5` filtering, semantic selected state, keyboard navigation, mouse selection, and close behavior.
+- `editor-block.utils.test.ts`: pure block transformations, paragraph insertion/reuse, slash text clearing, conversion, deletion, grouped expandable reordering, and missing-ID safety.
 
-Playwright covers the full reviewer-facing flow in Chromium at the reference desktop viewport, including screenshots for the key states.
+Playwright covers the full reviewer-facing flow in Chromium at the reference desktop viewport, including screenshots for the key states. A small mobile WebKit smoke covers the editor flow and plaintext rich-input sanitization in a Safari-like browser context without flaky visual assertions.
 
 ## Accessibility
 
 - Editable blocks expose `role="textbox"` and descriptive labels.
-- Slash and block menus use `role="menu"` and `role="menuitem"`.
+- Slash and block menus use `role="menu"`; selectable command/transform rows use `role="menuitemradio"` with `aria-checked`.
 - Focus is restored after conversion, block creation, disclosure toggling, and deletion.
 - Keyboard navigation is supported for the slash menu.
 - Decorative icons are hidden from assistive technology.
@@ -153,8 +155,8 @@ Playwright covers the full reviewer-facing flow in Chromium at the reference des
 - The supplied Figma screenshots are treated as the visual source of truth.
 - Light mode is the default so screenshot-based acceptance remains stable; dark mode is opt-in.
 - The app is desktop-first because the acceptance references are desktop captures.
-- Expandable headings use a flat model: body paragraphs are hidden while collapsed, but this is not a full nested document system.
-- Drag-and-drop reorders flat visible blocks only.
+- Expandable headings use a flat model: child blocks keep a `parentId` and are hidden while their parent heading is collapsed, but this is not a full nested document system.
+- Drag-and-drop reorders top-level blocks only; expandable heading groups move with their child blocks, and child block drags/drops are intentionally ignored to preserve the flat model invariant.
 - Persistence is omitted so reviewers always land on the expected clean initial state.
 - The implementation favors direct, testable code over framework-heavy editor abstractions.
 

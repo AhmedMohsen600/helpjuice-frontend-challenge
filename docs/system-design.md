@@ -11,7 +11,7 @@ Build the smallest reliable Helpjuice editor prototype that matches the supplied
   - `HelpjuiceEditor` composes the page chrome and editor surface.
   - `EditorBlock` renders the contenteditable paragraph or H1 block.
   - `SlashMenu` renders the shadcn popover command menu.
-  - `DndContext` from `@dnd-kit/core` wraps the visible block list for flat drag-and-drop reordering.
+  - `DndContext` from `@dnd-kit/core` wraps the visible block list for top-level drag-and-drop reordering.
 - `src/app/(editor)/_hooks/use-helpjuice-editor.ts` is now a small controller hook that composes focused route-local hooks and exposes the component view model.
 - `use-editor-blocks.ts` owns editor-domain state and intent actions.
 - `use-editor-focus.ts` owns DOM refs, contenteditable synchronization, initial focus, and caret placement.
@@ -24,21 +24,27 @@ The editor uses local React state only:
 
 ```ts
 type EditorBlock =
-  | { id: string; type: "paragraph"; text: string }
-  | { id: string; type: "heading-1"; text: string }
+  | { id: string; type: "paragraph"; text: string; parentId?: string }
+  | {
+      id: string;
+      type: "heading-1" | "heading-2" | "heading-3" | "heading-4";
+      text: string;
+      parentId?: string;
+    }
   | {
       id: string;
       type: "expandable-heading-1";
       text: string;
       isExpanded: boolean;
+      parentId?: string;
     };
 ```
 
-This is enough for the challenge flow: one starting paragraph, conversion to H1, a following paragraph, and flat visible-block reordering. There is no persistence, backend, rich-text mark model, or document tree because those are outside the Google Doc scope.
+This is enough for the challenge flow: one starting paragraph, conversion to heading levels, expandable heading child paragraphs, and top-level visible-block reordering. There is no persistence, backend, rich-text mark model, or full document tree because those are outside the Google Doc scope.
 
 ## State Ownership Decision
 
-The editor uses `useState` inside `useEditorBlocks`. A reducer was removed because the supported editor behavior is small and direct: update text, clear slash text, convert a paragraph to H1 or expandable H1, toggle one expandable heading, and insert or reuse one following paragraph. Paragraph Enter uses the same insertion operation so the `/1` flow can repeat. Reducer actions and transient reducer outputs added indirection without improving this challenge.
+The editor uses `useState` inside `useEditorBlocks`. A reducer was removed because the supported editor behavior is small and direct: update text, clear slash text, convert a paragraph to a heading or expandable H1, toggle one expandable heading, and insert or reuse one following paragraph. Paragraph Enter uses the same insertion operation so slash-command flows can repeat. Reducer actions and transient reducer outputs added indirection without improving this challenge.
 
 - React state: `blocks` and `activeBlockId`.
 - Refs: the DOM block map, pending focus target, and pending DOM sync IDs live in `useEditorFocus`.
@@ -48,31 +54,31 @@ The editor uses `useState` inside `useEditorBlocks`. A reducer was removed becau
 
 ## Interaction Decisions
 
-- The slash menu opens only for supported command text: `/` and `/1`.
-- `/1` displays the highlighted filtering keyword and keeps `Heading 1` selected.
-- Pressing Enter on `/` or `/1` converts the active paragraph to the selected empty focused heading command.
+- The slash menu opens only for supported command text: `/` and `/1` through `/5`.
+- `/1` through `/4` filter to Heading 1 through Heading 4. `/5` filters to Expandable Heading 1.
+- Pressing Enter on `/` or a supported numeric slash command converts the active paragraph to the selected empty focused command.
 - Unsupported slash queries are left as paragraph text and do not convert on Enter.
 - Pressing Enter in a normal paragraph inserts and focuses a new paragraph immediately below it.
 - Clicking blank editor space creates or focuses a trailing paragraph, reusing an existing empty trailing paragraph to avoid duplicate placeholders.
-- ArrowUp and ArrowDown move between `Heading 1` and `Expandable Heading 1`.
-- `Expandable Heading 1` converts into an expandable H1 block with a disclosure toggle. Collapsing it hides following paragraph blocks until the next heading while keeping the expandable heading title visible.
-- Drag handles use `@dnd-kit/core` pointer dragging to move the active block to the target block's position.
-- Normal typing, paste, text selection, text replacement, deletion, caret movement, mobile keyboard input, and IME composition are left to native `contentEditable` behavior. The hook intercepts only Enter, Escape, conversion, and focus restoration.
+- ArrowUp and ArrowDown move through the six slash commands while the unfiltered menu is open.
+- `Expandable Heading 1` converts into an expandable H1 block with a disclosure toggle. Paragraphs inserted from the expanded heading become child blocks with `parentId`; collapsing hides those children while keeping the heading title visible.
+- Drag handles use `@dnd-kit/core` pointer dragging to move top-level blocks. Expandable headings move as one group with their contiguous child blocks. Dragging a child block or dropping onto a child block is ignored to preserve the flat parent/child invariant.
+- Normal typing, text selection, deletion, caret movement, mobile keyboard input, and IME composition are left to native `contentEditable` behavior. Paste and rich native input are sanitized to plain text. The hook otherwise intercepts only Enter, Escape, conversion, and focus restoration.
 
 ## Focus And Refs
 
 Block DOM nodes are stored in a `Map<string, HTMLElement>` ref for average `O(1)` lookup. After conversion or paragraph creation, the controller requests focus through `useEditorFocus`; a layout effect resolves the pending ref after React renders and places the caret at the end of the target editable node.
 
-The focus hook synchronizes DOM text for programmatic editor changes such as clearing slash text and converting a paragraph to an H1, and when a previously hidden block remounts after an expandable heading is reopened. Native typing, paste, replacement, and deletion are left to the browser, so ordinary input does not trigger an all-block DOM synchronization pass.
+The focus hook synchronizes DOM text for programmatic editor changes such as clearing slash text and converting a paragraph to a heading, and when a previously hidden block remounts after an expandable heading is reopened. Native typing, replacement, and deletion are left to the browser, so ordinary input does not trigger an all-block DOM synchronization pass. Paste is inserted as a plain text node, and rich native input paths are rewritten to plain text while preserving focus and a best-effort caret offset.
 
 ## Complexity
 
 - Block updates are a single immutable `O(n)` map or slice over the small local block list.
 - Paragraph insertion finds the source block once. Headings reuse an immediate paragraph when present; paragraphs always insert a new paragraph below so repeated heading/paragraph creation keeps moving forward.
 - Trailing paragraph continuation checks the last block once and reuses it when it is already an empty paragraph.
-- Drag reordering finds the active and target block once, then moves the active block with a single immutable array splice.
+- Drag reordering groups the block list into top-level segments, then moves the active segment with a single immutable array splice.
 - Ref registration and lookup are average `O(1)`.
-- Slash matching and command navigation are constant time because the challenge supports only `/`, `/1`, and two commands.
+- Slash matching and command navigation are constant time because the challenge supports only `/` and `/1` through `/5`.
 - No global state library or memoization layer is added; the code is intentionally direct.
 
 ## Reliability
@@ -86,8 +92,7 @@ The focus hook synchronizes DOM text for programmatic editor changes such as cle
 
 ## Known Limitations
 
-- Only paragraph, H1, and expandable H1 blocks exist.
-- Pressing Enter in a paragraph that is not a supported slash command falls back to native contenteditable behavior.
-- Expandable headings support a flat disclosure behavior for following paragraph blocks, but no nested child-content model is implemented.
-- Drag-and-drop reorders flat blocks only; collapsed hidden paragraph children are not exposed as drop targets while hidden.
+- Only paragraph, Heading 1-4, and Expandable Heading 1 blocks exist.
+- Expandable headings support a flat `parentId` child model, but no arbitrary nested document tree is implemented.
+- Drag-and-drop reorders top-level segments only; child blocks are not valid drag origins or drop targets.
 - Mobile/tablet layout receives responsive width constraints, but the primary visual acceptance target is the supplied desktop screenshot viewport.

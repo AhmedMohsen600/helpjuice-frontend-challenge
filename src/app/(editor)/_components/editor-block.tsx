@@ -1,4 +1,4 @@
-import type { FormEvent, KeyboardEvent } from "react";
+import type { ClipboardEvent, FormEvent, KeyboardEvent } from "react";
 import { ChevronDown, ChevronRight, Menu, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -23,6 +23,10 @@ type EditorBlockProps = {
     block: EditorBlockType,
     event: KeyboardEvent<HTMLElement>,
   ) => void;
+  onPaste: (
+    block: EditorBlockType,
+    event: ClipboardEvent<HTMLElement>,
+  ) => void;
   onSelectCommand: (commandId: SlashCommandId) => void;
   onToggleExpandable: (blockId: string) => void;
   onTurnInto: (blockId: string, blockType: TextBlockType) => void;
@@ -40,6 +44,7 @@ export function EditorBlock({
   onOpenAddBlockMenu,
   onInput,
   onKeyDown,
+  onPaste,
   onSelectCommand,
   onToggleExpandable,
   onTurnInto,
@@ -63,6 +68,7 @@ export function EditorBlock({
     handleEditableFocus,
     handleEditableInput,
     handleEditableKeyDown,
+    handleEditablePaste,
     handleTurnInto,
     isBlockActionMenuOpen,
     isDragging,
@@ -80,6 +86,7 @@ export function EditorBlock({
     onFocus,
     onInput,
     onKeyDown,
+    onPaste,
     onTurnInto,
     registerRef,
   });
@@ -193,6 +200,7 @@ export function EditorBlock({
         onFocus={handleEditableFocus}
         onInput={handleEditableInput}
         onKeyDown={handleEditableKeyDown}
+        onPaste={handleEditablePaste}
         ref={handleBlockRef}
         role="textbox"
         suppressContentEditableWarning

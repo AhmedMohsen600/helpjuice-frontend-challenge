@@ -78,6 +78,68 @@ describe("editor heading flow", () => {
     expect(paragraph).toHaveTextContent("Pasted paragraph text");
   });
 
+  it("pastes rich clipboard HTML as plain text only", () => {
+    renderEditor();
+
+    const paragraph = screen.getByRole("textbox", {
+      name: "Paragraph block",
+    });
+    paragraph.focus();
+
+    fireEvent.paste(paragraph, {
+      clipboardData: {
+        getData: (type: string) => {
+          if (type === "text/plain") return "Styled link";
+          if (type === "text/html") {
+            return '<span style="font-size: 200px"><a href="https://example.com">Styled link</a><script>alert("nope")</script></span>';
+          }
+          return "";
+        },
+      },
+    });
+
+    expect(paragraph).toHaveFocus();
+    expect(paragraph).toHaveTextContent("Styled link");
+    expect(paragraph.innerHTML).toBe("Styled link");
+    expect(paragraph.querySelector("*")).toBeNull();
+  });
+
+  it("sanitizes native insertFromPaste input that inserted rich HTML", () => {
+    renderEditor();
+
+    const paragraph = screen.getByRole("textbox", {
+      name: "Paragraph block",
+    });
+    paragraph.focus();
+    paragraph.innerHTML =
+      '<span style="font-size: 200px">Styled <a href="https://example.com">link</a></span><script>alert("nope")</script><style>.bad{font-size:999px}</style>';
+
+    fireEvent.input(paragraph, { inputType: "insertFromPaste" });
+
+    expect(paragraph).toHaveFocus();
+    expect(paragraph).toHaveTextContent("Styled link");
+    expect(paragraph.innerHTML).toBe("Styled link");
+    expect(paragraph.querySelector("*")).toBeNull();
+  });
+
+  it("does not rewrite editable DOM while IME composition input is active", () => {
+    renderEditor();
+
+    const paragraph = screen.getByRole("textbox", {
+      name: "Paragraph block",
+    });
+    paragraph.focus();
+    paragraph.innerHTML = "<span>未</span>";
+
+    fireEvent.input(paragraph, {
+      inputType: "insertCompositionText",
+      isComposing: true,
+    });
+
+    expect(paragraph).toHaveFocus();
+    expect(paragraph.innerHTML).toBe("<span>未</span>");
+  });
+
   it("updates editor state when native input replaces text", () => {
     renderEditor();
 
@@ -133,8 +195,16 @@ describe("editor heading flow", () => {
 
     const menu = screen.getByRole("menu", { name: "Block actions" });
     expect(within(menu).getByText("Turn into")).toBeInTheDocument();
+    expect(
+      within(menu).getByRole("menuitemradio", { name: "Paragraph / Text" }),
+    ).toHaveAttribute("aria-checked", "true");
+    expect(
+      within(menu).getByRole("menuitemradio", { name: "Heading 3" }),
+    ).toHaveAttribute("aria-checked", "false");
 
-    await user.click(within(menu).getByRole("menuitem", { name: "Heading 3" }));
+    await user.click(
+      within(menu).getByRole("menuitemradio", { name: "Heading 3" }),
+    );
 
     const heading = screen.getByRole("textbox", { name: "Heading 3 block" });
     expect(heading).toHaveFocus();
@@ -143,7 +213,7 @@ describe("editor heading flow", () => {
     await user.click(screen.getByRole("button", { name: "Drag Heading 3 block" }));
     await user.click(
       within(screen.getByRole("menu", { name: "Block actions" })).getByRole(
-        "menuitem",
+        "menuitemradio",
         { name: "Paragraph / Text" },
       ),
     );

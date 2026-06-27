@@ -53,6 +53,7 @@ export function BlockActionMenu({
             return (
               <button
                 aria-label={option.label}
+                aria-checked={isSelected}
                 className={cn(
                   "flex h-[38px] w-full items-center gap-[10px] rounded-[var(--editor-radius-md)] bg-[var(--editor-surface)] px-[8px] text-left text-[15px] font-semibold transition-colors hover:bg-[var(--editor-surface-hover)]",
                   editorFocusRingClass,
@@ -63,7 +64,7 @@ export function BlockActionMenu({
                 key={option.type}
                 onClick={() => onTurnInto(option.type)}
                 onMouseDown={(event) => event.preventDefault()}
-                role="menuitem"
+                role="menuitemradio"
                 type="button"
               >
                 <span className="flex h-[22px] w-[32px] items-center justify-center text-[17px] font-medium text-[var(--editor-text-subtle)]">

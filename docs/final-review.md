@@ -10,6 +10,10 @@
 - The default popover open animation could be captured mid-transition, making visual QA screenshots look faded.
 - The empty contenteditable block produced a browser hydration warning around caret-color mutation.
 - Pressing Enter from an H1 that already had an empty paragraph below could create duplicate empty paragraph placeholders.
+- Rich HTML pasted or inserted by native contenteditable input could leave styled spans, links, scripts, or inline styles in the editable DOM even though state read `textContent`.
+- Expandable heading children used `parentId`, but drag reordering still moved only one flat block, which could orphan children from their expandable heading.
+- Slash and block action menu selected states were exposed only with `data-selected`, not semantic ARIA state.
+- Documentation still described older `/` and `/1` behavior and flat drag trade-offs after `/1` through `/5` and expandable children were added.
 
 ## Issues Fixed
 
@@ -25,6 +29,11 @@
 - Fixed paragraph Enter so users can create another paragraph and repeat the `/1` heading flow indefinitely.
 - Added Notion-style click-to-continue behavior on blank editor space without creating duplicate empty paragraphs.
 - Added flat block drag-and-drop using the existing drag handles and `@dnd-kit/core`.
+- Sanitized paste and rich native input paths back to plain text, removing pasted HTML elements and layout-breaking inline styles from editable blocks while preserving focus and avoiding IME composition rewrites.
+- Made expandable heading drag behavior segment-based: a heading moves together with contiguous child blocks, while child-origin and child-target drags are ignored.
+- Exposed slash command and block transform selected states with `role="menuitemradio"` and `aria-checked`.
+- Added grouped reorder, rich paste/input sanitization, semantic menu state, and mobile WebKit smoke coverage.
+- Updated README and system design docs for `/1` through `/5`, expandable `parentId` behavior, plaintext sanitization, and drag invariants.
 
 ## Assumptions Made
 
@@ -36,15 +45,16 @@
 ## Ideas Intentionally Excluded
 
 - Full Notion-style document model.
-- Full nested expandable heading child-content behavior beyond the flat paragraph hide/show behavior.
-- Nested drag-and-drop behavior or grouped section moves.
+- Full nested expandable heading child-content behavior beyond the flat `parentId` hide/show behavior.
+- Nested drag-and-drop behavior for child blocks.
 - Rich text marks or keyboard shortcuts beyond the approved H1 flow.
 - Local storage or backend persistence.
 - Full command palette behavior beyond the two reviewed heading commands.
 
 ## Remaining Limitations
 
-- Only paragraph, H1, and expandable H1 blocks are supported.
+- Only paragraph, Heading 1-4, and Expandable Heading 1 blocks are supported.
 - Paragraph Enter behavior outside the required H1 creation path is native contenteditable behavior.
+- Drag-and-drop is intentionally top-level only; expandable heading groups move together, and child blocks are not independent drag/drop targets.
 - Mobile and tablet are responsive enough for layout integrity, but visual acceptance is based on the supplied desktop screenshots.
 - The final description text follows the primary full-page Figma reference ending in `hitting enter.`

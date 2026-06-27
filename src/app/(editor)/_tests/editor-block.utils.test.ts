@@ -425,6 +425,117 @@ describe("editor block utilities", () => {
     ]);
   });
 
+  it("reorders an expandable heading together with its child blocks", () => {
+    const blocks: EditorBlock[] = [
+      {
+        id: "expandable",
+        isExpanded: true,
+        text: "Expandable",
+        type: "expandable-heading-1",
+      },
+      {
+        id: "child-paragraph",
+        parentId: "expandable",
+        text: "Child paragraph",
+        type: "paragraph",
+      },
+      {
+        id: "child-heading",
+        parentId: "expandable",
+        text: "Child heading",
+        type: "heading-2",
+      },
+      { id: "after", type: "heading-1", text: "After" },
+    ];
+
+    expect(reorderBlocks(blocks, "expandable", "after")).toEqual([
+      { id: "after", type: "heading-1", text: "After" },
+      {
+        id: "expandable",
+        isExpanded: true,
+        text: "Expandable",
+        type: "expandable-heading-1",
+      },
+      {
+        id: "child-paragraph",
+        parentId: "expandable",
+        text: "Child paragraph",
+        type: "paragraph",
+      },
+      {
+        id: "child-heading",
+        parentId: "expandable",
+        text: "Child heading",
+        type: "heading-2",
+      },
+    ]);
+  });
+
+  it("keeps collapsed expandable children attached after a grouped reorder", () => {
+    const blocks: EditorBlock[] = [
+      {
+        id: "expandable",
+        isExpanded: false,
+        text: "Expandable",
+        type: "expandable-heading-1",
+      },
+      {
+        id: "child",
+        parentId: "expandable",
+        text: "Hidden child",
+        type: "paragraph",
+      },
+      { id: "after", type: "paragraph", text: "After" },
+    ];
+    const reordered = reorderBlocks(blocks, "expandable", "after");
+
+    expect(reordered).toEqual([
+      { id: "after", type: "paragraph", text: "After" },
+      {
+        id: "expandable",
+        isExpanded: false,
+        text: "Expandable",
+        type: "expandable-heading-1",
+      },
+      {
+        id: "child",
+        parentId: "expandable",
+        text: "Hidden child",
+        type: "paragraph",
+      },
+    ]);
+    expect(getVisibleBlocks(reordered)).toEqual([
+      { id: "after", type: "paragraph", text: "After" },
+      {
+        id: "expandable",
+        isExpanded: false,
+        text: "Expandable",
+        type: "expandable-heading-1",
+      },
+    ]);
+  });
+
+  it("prevents child blocks from being dragged away from their expandable heading", () => {
+    const blocks: EditorBlock[] = [
+      {
+        id: "expandable",
+        isExpanded: true,
+        text: "Expandable",
+        type: "expandable-heading-1",
+      },
+      {
+        id: "child",
+        parentId: "expandable",
+        text: "Child",
+        type: "paragraph",
+      },
+      { id: "after", type: "paragraph", text: "After" },
+    ];
+
+    expect(reorderBlocks(blocks, "child", "after")).toBe(blocks);
+    expect(reorderBlocks(blocks, "after", "child")).toBe(blocks);
+  });
+
   it("returns the original block order when a drag target is invalid", () => {
     const blocks: EditorBlock[] = [
       { id: "first", type: "heading-1", text: "First" },

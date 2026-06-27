@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent, KeyboardEvent } from "react";
+import type { ClipboardEvent, FormEvent, KeyboardEvent } from "react";
 import { useCallback } from "react";
 
 import { PARAGRAPH_COMMAND_ID } from "../_constants/editor.constants";
@@ -10,6 +10,11 @@ import type {
   SlashCommandId,
   TextBlockType,
 } from "../_types/editor.types";
+import { insertPlainTextAtSelection } from "../_utils/caret";
+import {
+  getClipboardPlainText,
+  sanitizeContentEditableToPlainText,
+} from "../_utils/plaintext-editable";
 import { useEditorBlocks } from "./use-editor-blocks";
 import { useEditorFocus } from "./use-editor-focus";
 import { isSupportedSlashCommand, useSlashMenu } from "./use-slash-menu";
@@ -20,6 +25,10 @@ function getParagraphTextFromUnsupportedSlashText(text: string) {
   }
 
   return text.slice(1);
+}
+
+function isComposingInputEvent(nativeEvent: Event) {
+  return "isComposing" in nativeEvent && Boolean(nativeEvent.isComposing);
 }
 
 export function useHelpjuiceEditor() {
@@ -148,10 +157,8 @@ export function useHelpjuiceEditor() {
     ],
   );
 
-  const handleBlockInput = useCallback(
-    (block: EditorBlock, event: FormEvent<HTMLElement>) => {
-      normalizeEmptyBlockElement(event.currentTarget);
-      const nextText = event.currentTarget.textContent ?? "";
+  const updateBlockFromPlainText = useCallback(
+    (block: EditorBlock, nextText: string) => {
       if (isSupportedSlashCommand(nextText)) {
         resetSlashMenuSelection(nextText);
         updateBlockText(block.id, nextText);
@@ -169,12 +176,44 @@ export function useHelpjuiceEditor() {
       updateBlockText(block.id, paragraphText);
     },
     [
-      normalizeEmptyBlockElement,
       requestBlockSync,
       requestFocus,
       resetSlashMenuSelection,
       updateBlockText,
     ],
+  );
+
+  const handleBlockInput = useCallback(
+    (block: EditorBlock, event: FormEvent<HTMLElement>) => {
+      if (isComposingInputEvent(event.nativeEvent)) {
+        updateBlockText(block.id, event.currentTarget.textContent ?? "");
+        return;
+      }
+
+      normalizeEmptyBlockElement(event.currentTarget);
+      const nextText = sanitizeContentEditableToPlainText(event.currentTarget);
+      updateBlockFromPlainText(block, nextText);
+    },
+    [
+      normalizeEmptyBlockElement,
+      updateBlockFromPlainText,
+      updateBlockText,
+    ],
+  );
+
+  const handleBlockPaste = useCallback(
+    (block: EditorBlock, event: ClipboardEvent<HTMLElement>) => {
+      event.preventDefault();
+
+      const pastedText = getClipboardPlainText(event.clipboardData);
+      const nextText = insertPlainTextAtSelection(
+        event.currentTarget,
+        pastedText,
+      );
+
+      updateBlockFromPlainText(block, nextText);
+    },
+    [updateBlockFromPlainText],
   );
 
   const handleBlockKeyDown = useCallback(
@@ -260,6 +299,7 @@ export function useHelpjuiceEditor() {
     deleteBlock: deleteTextBlock,
     handleBlockInput,
     handleBlockKeyDown,
+    handleBlockPaste,
     isSlashMenuOpen,
     openAddBlockMenu,
     registerBlockRef,

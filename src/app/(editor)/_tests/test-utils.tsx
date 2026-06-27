@@ -39,7 +39,9 @@ export async function typeSlashCommand(
 export async function selectCommand(user: TestUser, commandName: string) {
   const menu = screen.getByRole("menu", { name: "Add blocks" });
 
-  await user.click(within(menu).getByRole("menuitem", { name: commandName }));
+  await user.click(
+    within(menu).getByRole("menuitemradio", { name: commandName }),
+  );
 }
 
 export async function createHeading(user: TestUser) {

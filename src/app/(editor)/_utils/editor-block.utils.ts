@@ -197,18 +197,78 @@ export function reorderBlocks(
     return blocks;
   }
 
-  const activeIndex = blocks.findIndex((block) => block.id === activeBlockId);
-  const overIndex = blocks.findIndex((block) => block.id === overBlockId);
+  const activeBlock = findBlockById(blocks, activeBlockId);
+  const overBlock = findBlockById(blocks, overBlockId);
 
-  if (activeIndex === -1 || overIndex === -1) {
+  if (!activeBlock || !overBlock) {
     return blocks;
   }
 
-  const nextBlocks = [...blocks];
-  const [activeBlock] = nextBlocks.splice(activeIndex, 1);
-  nextBlocks.splice(overIndex, 0, activeBlock);
+  if (activeBlock.parentId || overBlock.parentId) {
+    return blocks;
+  }
 
-  return nextBlocks;
+  const reorderSegments = getTopLevelReorderSegments(blocks);
+  const activeSegmentIndex = reorderSegments.findIndex(
+    (segment) => segment.rootBlockId === activeBlockId,
+  );
+  const overSegmentIndex = reorderSegments.findIndex(
+    (segment) => segment.rootBlockId === overBlockId,
+  );
+
+  if (activeSegmentIndex === -1 || overSegmentIndex === -1) {
+    return blocks;
+  }
+
+  const nextSegments = [...reorderSegments];
+  const [activeSegment] = nextSegments.splice(activeSegmentIndex, 1);
+  nextSegments.splice(overSegmentIndex, 0, activeSegment);
+
+  return nextSegments.flatMap((segment) => segment.blocks);
+}
+
+type ReorderSegment = {
+  blocks: EditorBlock[];
+  rootBlockId: string;
+};
+
+function getTopLevelReorderSegments(blocks: EditorBlock[]) {
+  const segments: ReorderSegment[] = [];
+  let blockIndex = 0;
+
+  while (blockIndex < blocks.length) {
+    const rootBlock = blocks[blockIndex];
+    if (rootBlock.parentId) {
+      segments.push({
+        blocks: [rootBlock],
+        rootBlockId: rootBlock.id,
+      });
+      blockIndex += 1;
+      continue;
+    }
+
+    if (rootBlock.type !== "expandable-heading-1") {
+      segments.push({
+        blocks: [rootBlock],
+        rootBlockId: rootBlock.id,
+      });
+      blockIndex += 1;
+      continue;
+    }
+
+    let groupEndIndex = blockIndex + 1;
+    while (blocks[groupEndIndex]?.parentId === rootBlock.id) {
+      groupEndIndex += 1;
+    }
+
+    segments.push({
+      blocks: blocks.slice(blockIndex, groupEndIndex),
+      rootBlockId: rootBlock.id,
+    });
+    blockIndex = groupEndIndex;
+  }
+
+  return segments;
 }
 
 export function ensureTrailingParagraph(

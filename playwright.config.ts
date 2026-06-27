@@ -24,9 +24,18 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: /.*webkit-smoke\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1882, height: 930 },
+      },
+    },
+    {
+      name: "mobile-webkit",
+      testMatch: /.*webkit-smoke\.spec\.ts/,
+      use: {
+        ...devices["iPhone 13"],
+        browserName: "webkit",
       },
     },
   ],

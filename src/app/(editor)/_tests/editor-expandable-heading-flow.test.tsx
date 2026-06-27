@@ -133,10 +133,11 @@ describe("editor expandable heading flow", () => {
     await user.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}");
 
     expect(within(menu).getByLabelText("Heading 1")).not.toHaveAttribute(
-      "data-selected",
+      "aria-checked",
+      "true",
     );
     expect(within(menu).getByLabelText("Expandable Heading 1")).toHaveAttribute(
-      "data-selected",
+      "aria-checked",
       "true",
     );
 

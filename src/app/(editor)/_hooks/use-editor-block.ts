@@ -1,4 +1,5 @@
 import type {
+  ClipboardEvent,
   CSSProperties,
   FormEvent,
   KeyboardEvent,
@@ -19,6 +20,7 @@ type UseEditorBlockArgs = {
   onFocus: (blockId: string) => void;
   onInput: (block: EditorBlock, event: FormEvent<HTMLElement>) => void;
   onKeyDown: (block: EditorBlock, event: KeyboardEvent<HTMLElement>) => void;
+  onPaste: (block: EditorBlock, event: ClipboardEvent<HTMLElement>) => void;
   onTurnInto: (blockId: string, blockType: TextBlockType) => void;
   registerRef: (blockId: string, element: HTMLElement | null) => void;
 };
@@ -55,6 +57,7 @@ export function useEditorBlock({
   onFocus,
   onInput,
   onKeyDown,
+  onPaste,
   onTurnInto,
   registerRef,
 }: UseEditorBlockArgs) {
@@ -63,6 +66,7 @@ export function useEditorBlock({
   const [blockMenuAnchorElement, setBlockMenuAnchorElement] =
     useState<HTMLButtonElement | null>(null);
   const [isBlockActionMenuOpen, setIsBlockActionMenuOpen] = useState(false);
+  const isExpandableChild = Boolean(block.parentId);
   const {
     attributes: dragAttributes,
     isDragging,
@@ -70,8 +74,9 @@ export function useEditorBlock({
     setActivatorNodeRef,
     setNodeRef: setDraggableNodeRef,
     transform,
-  } = useDraggable({ id: block.id });
+  } = useDraggable({ disabled: isExpandableChild, id: block.id });
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
+    disabled: isExpandableChild,
     id: block.id,
   });
   const isExpandableHeading = block.type === "expandable-heading-1";
@@ -145,6 +150,12 @@ export function useEditorBlock({
     },
     [block, onKeyDown],
   );
+  const handleEditablePaste = useCallback(
+    (event: ClipboardEvent<HTMLElement>) => {
+      onPaste(block, event);
+    },
+    [block, onPaste],
+  );
   const handleTurnInto = useCallback(
     (blockType: TextBlockType) => {
       setIsBlockActionMenuOpen(false);
@@ -174,6 +185,7 @@ export function useEditorBlock({
     handleEditableFocus,
     handleEditableInput,
     handleEditableKeyDown,
+    handleEditablePaste,
     handleTurnInto,
     isBlockActionMenuOpen,
     isDragging,
