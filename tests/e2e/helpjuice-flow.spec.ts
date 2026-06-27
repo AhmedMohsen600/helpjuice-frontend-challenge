@@ -161,6 +161,38 @@ test("shows a toast for visual-only chrome controls", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("toggles the editor into dark mode", async ({ page }) => {
+  await page.goto("/");
+
+  const shell = page.getByTestId("editor-shell");
+  const title = page.getByRole("heading", {
+    level: 1,
+    name: "Front-end developer test project",
+  });
+
+  await expect(shell).toHaveCSS("background-color", "rgb(255, 255, 255)");
+
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+
+  await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+  await expect(shell).toHaveCSS("background-color", "rgb(25, 25, 25)");
+  await expect(title).toHaveCSS("color", "rgb(230, 230, 230)");
+
+  await page.getByRole("textbox", { name: "Paragraph block" }).click();
+  await page.keyboard.type("/1");
+
+  const menu = page.getByRole("menu", { name: "Add blocks" });
+  await expect(menu).toHaveCSS("background-color", "rgb(32, 32, 32)");
+  await expect(
+    page.getByRole("menuitem", { exact: true, name: "Heading 1" }),
+  ).toHaveCSS("background-color", "rgb(47, 47, 47)");
+
+  await page.getByRole("button", { name: "Switch to light mode" }).click();
+
+  await expect(page.locator("html")).toHaveClass(/\blight\b/);
+  await expect(shell).toHaveCSS("background-color", "rgb(255, 255, 255)");
+});
+
 test("supports the add affordance, heading levels, and block turn-into menu", async ({
   page,
 }) => {
