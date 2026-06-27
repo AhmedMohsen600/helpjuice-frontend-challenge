@@ -48,7 +48,7 @@ export function SlashMenu({
             <div className="mt-[18px] text-[17px] leading-tight text-(--editor-text-subtle)">
               <span>Filtering keyword </span>
               <span
-                className="rounded-[5px] bg-[#2f67b1] px-[5px] py-px text-[16px] font-semibold leading-none text-white"
+                className="rounded-[5px] bg-(--editor-filter-bg) px-[5px] py-px text-[16px] font-semibold leading-none text-(--editor-filter-text)"
                 data-testid="filter-keyword-highlight"
               >
                 {filter}
