@@ -118,6 +118,32 @@
 }
 
 @layer base {
+  :root {
+    --editor-bg: #ffffff;
+    --editor-surface: #ffffff;
+    --editor-surface-hover: #f7f8fa;
+    --editor-surface-selected: #f1f3f6;
+    --editor-text-primary: #111722;
+    --editor-text-heading: #1d2635;
+    --editor-text-secondary: #4b5565;
+    --editor-text-muted: #9aa3b1;
+    --editor-text-subtle: #687384;
+    --editor-text-placeholder: #c4cad4;
+    --editor-icon-muted: #a4adbb;
+    --editor-icon-faint: #d7dde6;
+    --editor-border: #dfe4eb;
+    --editor-divider: #e6eaf0;
+    --editor-focus-ring: rgba(154, 163, 177, 0.4);
+    --editor-radius-sm: 4px;
+    --editor-radius-md: 6px;
+    --editor-radius-lg: 8px;
+    --editor-shadow-toolbar: 0 2px 6px rgba(15, 23, 42, 0.06);
+    --editor-shadow-menu: 0 28px 70px rgba(15, 23, 42, 0.16);
+    --editor-shadow-action-menu: 0 18px 44px rgba(15, 23, 42, 0.18);
+    --editor-content-width: 956px;
+    --editor-command-menu-width: 404px;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -130,13 +156,13 @@
 }
 
 [data-active="true"] .editor-block:empty::before {
-  color: #c4cad4;
+  color: var(--editor-text-placeholder);
   content: attr(data-placeholder);
   pointer-events: none;
 }
 
 .editor-block:focus {
-  caret-color: #4b5565 !important;
+  caret-color: var(--editor-text-secondary) !important;
 }
 
 [aria-label="Heading 1 block"].editor-block:focus,
@@ -144,5 +170,5 @@
 [aria-label="Heading 3 block"].editor-block:focus,
 [aria-label="Heading 4 block"].editor-block:focus,
 [aria-label="Expandable Heading 1 block"].editor-block:focus {
-  caret-color: #1d2635 !important;
+  caret-color: var(--editor-text-heading) !important;
 }
