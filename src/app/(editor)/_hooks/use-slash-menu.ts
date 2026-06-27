@@ -79,13 +79,17 @@ export function useSlashMenu({
     const activeElement = getBlockElement(activeBlockId);
     if (activeElement) {
       const { bottom, height, top } = activeElement.getBoundingClientRect();
+      const availableMenuHeight = Math.min(
+        SLASH_MENU_HEIGHT,
+        window.innerHeight - SLASH_MENU_VIEWPORT_GUTTER * 2,
+      );
       const lowestBottomWithMenuBelow =
         window.innerHeight -
-        SLASH_MENU_HEIGHT -
+        availableMenuHeight -
         SLASH_MENU_SIDE_OFFSET -
         SLASH_MENU_VIEWPORT_GUTTER;
       const desiredTop = Math.max(
-        80,
+        SLASH_MENU_VIEWPORT_GUTTER,
         Math.min(window.innerHeight * 0.45, lowestBottomWithMenuBelow - height),
       );
 
