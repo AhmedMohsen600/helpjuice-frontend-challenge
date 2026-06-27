@@ -113,19 +113,19 @@ export function HelpjuiceEditor() {
 
   return (
     <main
-      className="min-h-screen overflow-x-hidden bg-(--editor-bg) text-(--editor-text-primary)"
+      className="min-h-screen bg-(--editor-bg) text-(--editor-text-primary)"
       data-testid="editor-shell"
     >
-      <section className="relative mx-auto min-h-[930px] w-full bg-(--editor-bg)">
-        <header className="flex h-[80px] items-center justify-between px-8 text-[18px] font-medium text-(--editor-text-muted)">
+      <section className="relative mx-auto min-h-screen w-full bg-(--editor-bg)">
+        <header className="flex min-h-[80px] flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-4 text-[14px] font-medium text-(--editor-text-muted) sm:px-6 sm:text-[16px] lg:px-8 lg:text-[18px]">
           <nav
             aria-label="Breadcrumb"
-            className="flex items-center leading-none text-(--editor-text-muted)"
+            className="flex min-w-0 flex-1 basis-[280px] items-center overflow-hidden leading-none text-(--editor-text-muted)"
           >
             <button
               aria-label="Sidebar navigation"
               className={cn(
-                "mr-[33px] inline-flex h-[18px] w-[18px] items-center justify-center border-0 bg-transparent p-0 text-(--editor-text-subtle) transition-colors hover:text-(--editor-text-primary)",
+                "mr-4 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center border-0 bg-transparent p-0 text-(--editor-text-subtle) transition-colors hover:text-(--editor-text-primary) sm:mr-[33px]",
                 editorFocusRingClass,
               )}
               onClick={() => showUnavailableFeatureToast("Sidebar navigation")}
@@ -139,7 +139,7 @@ export function HelpjuiceEditor() {
             </button>
             <button
               className={cn(
-                "me-[17px] inline-flex items-center border-0 bg-transparent p-0 text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle)",
+                "me-3 inline-flex min-w-0 shrink-0 items-center border-0 bg-transparent p-0 text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle) sm:me-[17px]",
                 editorFocusRingClass,
               )}
               onClick={() => showUnavailableFeatureToast("Main breadcrumb")}
@@ -154,10 +154,12 @@ export function HelpjuiceEditor() {
                 Main
               </span>
             </button>
-            <span className="me-[18px] text-(--editor-text-muted)">/</span>
+            <span className="me-3 shrink-0 text-(--editor-text-muted) sm:me-[18px]">
+              /
+            </span>
             <button
               className={cn(
-                "me-[17px] border-0 bg-transparent p-0 text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle)",
+                "me-3 min-w-0 max-w-[34vw] truncate border-0 bg-transparent p-0 text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle) sm:me-[17px] sm:max-w-none",
                 editorFocusRingClass,
               )}
               onClick={() =>
@@ -167,10 +169,12 @@ export function HelpjuiceEditor() {
             >
               Getting started
             </button>
-            <span className="me-[18px] text-(--editor-text-muted)">/</span>
+            <span className="me-3 shrink-0 text-(--editor-text-muted) sm:me-[18px]">
+              /
+            </span>
             <button
               className={cn(
-                "max-w-[280px] truncate border-0 bg-transparent p-0 text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle)",
+                "min-w-0 max-w-[42vw] truncate border-0 bg-transparent p-0 text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle) sm:max-w-[280px]",
                 editorFocusRingClass,
               )}
               onClick={() => showUnavailableFeatureToast("Page breadcrumb")}
@@ -179,11 +183,11 @@ export function HelpjuiceEditor() {
               Front-end developer test proje...
             </button>
           </nav>
-          <div className="flex items-center gap-5">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-5">
             <ThemeToggle />
             <button
               className={cn(
-                "inline-flex items-center gap-2 border-0 bg-transparent p-0 text-[16px] text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle)",
+                "inline-flex items-center gap-1.5 whitespace-nowrap border-0 bg-transparent p-0 text-[14px] text-(--editor-text-muted) transition-colors hover:text-(--editor-text-subtle) sm:gap-2 sm:text-[16px]",
                 editorFocusRingClass,
               )}
               onClick={() => showUnavailableFeatureToast("Editing status")}
@@ -199,7 +203,7 @@ export function HelpjuiceEditor() {
             <span className="h-[26px] w-px bg-(--editor-divider)" />
             <button
               className={cn(
-                "inline-flex items-center gap-2 text-[18px] font-bold text-(--editor-action-text) transition-opacity hover:opacity-85",
+                "inline-flex items-center gap-1.5 whitespace-nowrap text-[14px] font-bold text-(--editor-action-text) transition-opacity hover:opacity-85 sm:gap-2 sm:text-[18px]",
                 editorFocusRingClass,
               )}
               onClick={() => showUnavailableFeatureToast("Publish Space")}
@@ -216,18 +220,18 @@ export function HelpjuiceEditor() {
         </header>
 
         <div
-          className="mx-auto w-(--editor-content-width) pt-[10px] max-[1040px]:w-[calc(100%-64px)]"
+          className="mx-auto w-full max-w-[var(--editor-content-width)] px-4 pt-[10px] sm:px-8 xl:px-0"
         >
           <button
             aria-label="Page metadata toolbar"
             className={cn(
-              "mb-[32px] flex h-[48px] w-full items-center justify-between rounded-(--editor-radius-md) border border-(--editor-border) bg-(--editor-surface) px-3 text-[16px] text-(--editor-text-muted) shadow-(--editor-shadow-toolbar) transition-colors hover:bg-(--editor-surface-hover)",
+              "mb-[32px] flex h-[48px] w-full min-w-0 items-center justify-between overflow-hidden rounded-(--editor-radius-md) border border-(--editor-border) bg-(--editor-surface) px-3 text-[16px] text-(--editor-text-muted) shadow-(--editor-shadow-toolbar) transition-colors hover:bg-(--editor-surface-hover)",
               editorFocusRingClass,
             )}
             onClick={() => showUnavailableFeatureToast("Page metadata")}
             type="button"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-4">
               <span className="inline-flex h-[32px] w-[28px] items-center justify-center rounded-[4px] bg-(--editor-badge-bg) text-[17px] font-semibold text-(--editor-badge-text)">
                 P
               </span>
@@ -259,7 +263,7 @@ export function HelpjuiceEditor() {
                 0
               </span>
             </div>
-            <div className="flex items-center gap-[10px] text-(--editor-text-muted)">
+            <div className="flex shrink-0 items-center gap-1.5 text-(--editor-text-muted) sm:gap-[10px]">
               <CircleCheckBig
                 aria-hidden="true"
                 className={editorIconSize.metadata}
@@ -281,15 +285,15 @@ export function HelpjuiceEditor() {
             </div>
           </button>
 
-          <h1 className="m-0 border-b border-(--editor-divider) pb-[13px] text-[48px] font-extrabold leading-[1.12] text-(--editor-text-primary)">
+          <h1 className="m-0 break-words border-b border-(--editor-divider) pb-[13px] text-[38px] font-extrabold leading-[1.12] text-(--editor-text-primary) sm:text-[48px]">
             Front-end developer test project
           </h1>
-          <p className="m-0 mt-[24px] max-w-[940px] text-[19px] font-normal leading-[1.45] text-(--editor-text-secondary)">
+          <p className="m-0 mt-[24px] max-w-[940px] break-words text-[17px] font-normal leading-[1.45] text-(--editor-text-secondary) sm:text-[19px]">
             {EDITOR_DESCRIPTION}
           </p>
 
           <div
-            className="relative mt-[82px] min-h-[360px] cursor-text"
+            className="relative mt-12 min-h-[360px] cursor-text sm:mt-[82px]"
             data-testid="editor-continuation-surface"
             onMouseDown={handleContinuationMouseDown}
             style={{
@@ -330,7 +334,7 @@ export function HelpjuiceEditor() {
                   <button
                     aria-label="Continue editing below"
                     className={cn(
-                      "group/continuation relative flex h-[32px] w-full cursor-text items-center rounded-(--editor-radius-sm) border-0 bg-transparent p-0 text-left before:absolute before:left-[-96px] before:top-0 before:h-full before:w-[96px] before:content-['']",
+                      "group/continuation relative flex h-[32px] w-full cursor-text items-center rounded-(--editor-radius-sm) border-0 bg-transparent p-0 text-left before:absolute before:left-[-96px] before:top-0 before:h-full before:w-[96px] before:content-[''] max-[1040px]:pl-[64px] max-[1040px]:before:hidden",
                       editorFocusRingClass,
                     )}
                     data-continuation-hint
@@ -340,7 +344,7 @@ export function HelpjuiceEditor() {
                   >
                     <span
                       aria-hidden="true"
-                      className="absolute left-[-76px] top-1/2 z-10 hidden h-[28px] w-[28px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-(--editor-radius-sm) text-(--editor-icon-muted) group-hover/continuation:flex group-focus-visible/continuation:flex"
+                      className="absolute left-[-76px] top-1/2 z-10 hidden h-[28px] w-[28px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-(--editor-radius-sm) text-(--editor-icon-muted) group-hover/continuation:flex group-focus-visible/continuation:flex max-[1040px]:left-0"
                       data-continuation-plus
                     >
                       <Plus
@@ -350,7 +354,7 @@ export function HelpjuiceEditor() {
                     </span>
                     <span
                       aria-hidden="true"
-                      className="absolute left-[-42px] top-1/2 z-10 hidden h-[24px] w-[24px] -translate-y-1/2 cursor-grab items-center justify-center rounded-(--editor-radius-sm) text-(--editor-icon-faint) group-hover/continuation:flex group-focus-visible/continuation:flex"
+                      className="absolute left-[-42px] top-1/2 z-10 hidden h-[24px] w-[24px] -translate-y-1/2 cursor-grab items-center justify-center rounded-(--editor-radius-sm) text-(--editor-icon-faint) group-hover/continuation:flex group-focus-visible/continuation:flex max-[1040px]:left-[34px]"
                       data-continuation-drag
                     >
                       <Menu
@@ -369,7 +373,7 @@ export function HelpjuiceEditor() {
         <button
           aria-label="Help"
           className={cn(
-            "fixed bottom-[18px] right-[18px] flex h-[48px] w-[48px] items-center justify-center rounded-(--editor-radius-lg) bg-(--editor-surface-selected) text-[28px] font-semibold text-(--editor-text-subtle) transition-colors hover:bg-(--editor-surface-hover)",
+            "fixed bottom-4 right-4 z-40 flex h-[48px] w-[48px] items-center justify-center rounded-(--editor-radius-lg) bg-(--editor-surface-selected) text-[28px] font-semibold text-(--editor-text-subtle) transition-colors hover:bg-(--editor-surface-hover) sm:bottom-[18px] sm:right-[18px]",
             editorFocusRingClass,
           )}
           onClick={() => showUnavailableFeatureToast("Help")}
