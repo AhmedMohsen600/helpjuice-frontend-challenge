@@ -3,7 +3,7 @@ import { ChevronDown, ChevronRight, Menu, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-import { useEditorBlock } from "../_hooks/use-editor-block";
+import { useEditorBlockUi } from "../_hooks/use-editor-block-ui";
 import type { EditorBlock as EditorBlockType } from "../_types/editor.types";
 import type { SlashCommandId, TextBlockType } from "../_types/editor.types";
 import { BlockActionMenu } from "./block-action-menu";
@@ -80,7 +80,7 @@ export function EditorBlock({
     setIsBlockActionMenuOpen,
     setMenuAnchorElement,
     showAddBlockButton,
-  } = useEditorBlock({
+  } = useEditorBlockUi({
     block,
     onDeleteBlock,
     onFocus,

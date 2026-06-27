@@ -14,7 +14,7 @@ import {
 } from "../_constants/editor.constants";
 import type { EditorBlock, TextBlockType } from "../_types/editor.types";
 
-type UseEditorBlockArgs = {
+type UseEditorBlockUiArgs = {
   block: EditorBlock;
   onDeleteBlock: (blockId: string) => void;
   onFocus: (blockId: string) => void;
@@ -51,7 +51,7 @@ function getBlockLabel(block: EditorBlock) {
   return `Heading ${block.type.at(-1)} block`;
 }
 
-export function useEditorBlock({
+export function useEditorBlockUi({
   block,
   onDeleteBlock,
   onFocus,
@@ -60,7 +60,7 @@ export function useEditorBlock({
   onPaste,
   onTurnInto,
   registerRef,
-}: UseEditorBlockArgs) {
+}: UseEditorBlockUiArgs) {
   const [menuAnchorElement, setMenuAnchorElement] =
     useState<HTMLSpanElement | null>(null);
   const [blockMenuAnchorElement, setBlockMenuAnchorElement] =
