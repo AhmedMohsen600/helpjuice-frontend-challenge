@@ -16,6 +16,7 @@ The project is intentionally scoped: it prioritizes faithful interaction behavio
 - Expandable Heading 1 conversion, disclosure toggling, body hide/show behavior, and continuation after collapse.
 - Block action menu for turning blocks into text/heading types and deleting blocks.
 - Flat drag-and-drop block reordering with `@dnd-kit/core`.
+- Light/dark editor theme toggle with a Notion-like dark canvas.
 - Prototype toasts for visual-only page chrome controls.
 
 ## Tech Stack
@@ -121,7 +122,7 @@ This repo includes a small implemented design system, not a large UI library.
 - Editor tokens live in `src/app/globals.css`.
 - Route-level style helpers live in `src/app/(editor)/_components/editor-style-utils.ts`.
 - Slash command rows share `src/app/(editor)/_components/command-menu-item.tsx`.
-- Repeated editor surfaces, menu states, icon sizing, focus rings, radii, shadows, and widths use semantic tokens.
+- Repeated editor surfaces, menu states, icon sizing, focus rings, radii, shadows, widths, and light/dark colors use semantic tokens.
 
 See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) for the exact tokens and trade-offs.
 
@@ -144,11 +145,13 @@ Playwright covers the full reviewer-facing flow in Chromium at the reference des
 - Keyboard navigation is supported for the slash menu.
 - Decorative icons are hidden from assistive technology.
 - Visual-only controls remain labeled and explain themselves through prototype toasts.
+- The theme toggle exposes pressed state and a descriptive accessible label.
 - A shared `focus-visible` ring is used for interactive editor chrome.
 
 ## Assumptions And Trade-Offs
 
 - The supplied Figma screenshots are treated as the visual source of truth.
+- Light mode is the default so screenshot-based acceptance remains stable; dark mode is opt-in.
 - The app is desktop-first because the acceptance references are desktop captures.
 - Expandable headings use a flat model: body paragraphs are hidden while collapsed, but this is not a full nested document system.
 - Drag-and-drop reorders flat visible blocks only.
