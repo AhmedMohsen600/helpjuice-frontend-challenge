@@ -87,7 +87,10 @@ export function EditorBlock({
   return (
     <div
       className={cn(
-        "group relative before:absolute before:left-[-96px] before:top-0 before:h-full before:w-[96px] before:content-['']",
+        "group relative before:absolute before:left-[-96px] before:top-0 before:h-full before:w-[96px] before:content-[''] max-[1040px]:before:hidden",
+        isExpandableHeading
+          ? "max-[1040px]:pl-[96px]"
+          : "max-[1040px]:pl-[64px]",
         isDragging && "opacity-80",
         isOver &&
           !isDragging &&
@@ -104,7 +107,7 @@ export function EditorBlock({
           aria-expanded={isExpanded}
           aria-label="Toggle expandable heading"
           className={cn(
-            "absolute left-[-44px] top-1/2 z-10 flex h-[28px] w-[28px] -translate-y-1/2 items-center justify-center rounded-(--editor-radius-sm) text-(--editor-text-placeholder) transition-colors hover:bg-(--editor-surface-hover)",
+            "absolute left-[-44px] top-1/2 z-10 flex h-[28px] w-[28px] -translate-y-1/2 items-center justify-center rounded-(--editor-radius-sm) text-(--editor-text-placeholder) transition-colors hover:bg-(--editor-surface-hover) max-[1040px]:left-0",
             editorFocusRingClass,
           )}
           onClick={() => onToggleExpandable(block.id)}
@@ -130,7 +133,11 @@ export function EditorBlock({
           className={cn(
             `absolute ${
               isExpandableHeading ? "left-[-118px]" : "left-[-76px]"
-            } top-1/2 z-10 hidden h-[28px] w-[28px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-(--editor-radius-sm) text-(--editor-icon-muted) transition-colors hover:bg-(--editor-surface-hover) group-hover:flex focus-visible:flex`,
+            } top-1/2 z-10 hidden h-[28px] w-[28px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-(--editor-radius-sm) text-(--editor-icon-muted) transition-colors hover:bg-(--editor-surface-hover) group-hover:flex focus-visible:flex ${
+              isExpandableHeading
+                ? "max-[1040px]:left-[34px]"
+                : "max-[1040px]:left-0"
+            }`,
             editorFocusRingClass,
           )}
           onClick={() => onOpenAddBlockMenu(block.id)}
@@ -145,7 +152,11 @@ export function EditorBlock({
         className={cn(
           `absolute ${
             isExpandableHeading ? "left-[-82px]" : "left-[-42px]"
-          } top-1/2 z-10 flex h-[24px] w-[24px] -translate-y-1/2 cursor-grab items-center justify-center rounded-(--editor-radius-sm) transition-colors hover:bg-(--editor-surface-hover) active:cursor-grabbing`,
+          } top-1/2 z-10 flex h-[24px] w-[24px] -translate-y-1/2 cursor-grab items-center justify-center rounded-(--editor-radius-sm) transition-colors hover:bg-(--editor-surface-hover) active:cursor-grabbing ${
+            isExpandableHeading
+              ? "max-[1040px]:left-[68px]"
+              : "max-[1040px]:left-[34px]"
+          }`,
           editorFocusRingClass,
           dragHandleColorClass,
         )}
